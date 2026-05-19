@@ -1,0 +1,236 @@
+{% liquid
+  assign content_max_width = section.settings.content_max_width | default: 1280
+  assign section_title = section.settings.section_title
+  assign section_subtitle = section.settings.section_subtitle
+
+  assign has_header = false
+  if section_title != blank or section_subtitle != blank
+    assign has_header = true
+  endif
+%}
+<style>
+  .ws-base-section {
+    padding-top: {{ section.settings.padding_top_pc }};
+    padding-bottom: {{ section.settings.padding_bottom_pc }};
+    margin-top: {{ section.settings.margin_top_pc }};
+    margin-bottom: {{ section.settings.margin_bottom_pc }};
+  }
+
+  @media screen and (max-width: 750px) {
+    .ws-base-section {
+      padding-top: {{ section.settings.padding_top_mobile }};
+      padding-bottom: {{ section.settings.padding_bottom_mobile }};
+      margin-top: {{ section.settings.margin_top_mobile }};
+      margin-bottom: {{ section.settings.margin_bottom_mobile }};
+    }
+  }
+</style>
+
+<div
+  class="section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }} ws-base-section"
+  {% if request.visual_preview_mode %}
+    data-shopify-visual-preview
+  {% endif %}
+  {% if section.settings.section_id != blank %}
+    section-id="{{ section.settings.section_id | escape }}"
+  {% endif %}
+>
+  <div
+    class="
+      spacing-style
+      layout-panel-flex
+      layout-panel-flex--{{ section.settings.content_direction }}
+      section-content-wrapper
+    "
+    style="
+      {% render 'layout-panel-style', settings: section.settings %}
+      {% render 'spacing-style', settings: section.settings %}
+    "
+  >
+    <div
+      class="ws-base-section__shell{% if has_header %} ws-base-section__shell--has-header{% endif %}"
+      {% if section.settings.section_id != blank %}
+        id="{{ section.settings.section_id | escape }}"
+      {% endif %}
+      style="--ws-base-section-max-width: {{ content_max_width }}px;"
+    >
+      <div class="ws-base-section__inner">
+        {% if has_header %}
+          <header class="ws-base-section__header">
+            {% if section_title != blank %}
+              <h2 class="ws-base-section__title">{{ section_title }}</h2>
+            {% endif %}
+            {% if section_subtitle != blank %}
+              <p class="ws-base-section__subtitle">{{ section_subtitle }}</p>
+            {% endif %}
+          </header>
+        {% endif %}
+
+        <div class="ws-base-section__container">
+          {% content_for 'blocks' %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .ws-base-section__shell {
+    width: 100%;
+  }
+
+  .ws-base-section__inner {
+    width: 100%;
+    max-width: var(--ws-base-section-max-width, 1280px);
+    margin-inline: auto;
+    padding-inline: var(--page-margin);
+  }
+
+  .ws-base-section__header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ws-base-section__header {
+      gap: 24px;
+    }
+  }
+
+  .ws-base-section__title {
+    margin: 0;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 1.2;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ws-base-section__title {
+      font-size: 36px;
+    }
+  }
+
+  .ws-base-section__subtitle {
+    margin: 0;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 1.4;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ws-base-section__subtitle {
+      font-size: 24px;
+    }
+  }
+
+  .ws-base-section__shell--has-header .ws-base-section__container {
+    margin-block-start: 18px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ws-base-section__shell--has-header .ws-base-section__container {
+      margin-block-start: 36px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Base Section",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Shell"
+    },
+    {
+      "type": "text",
+      "id": "section_id",
+      "label": "Section ID",
+      "info": "Custom HTML ID"
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Content Max Width",
+      "min": 960,
+      "max": 1920,
+      "step": 20,
+      "unit": "px",
+      "default": 1280
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title"
+    },
+    {
+      "type": "textarea",
+      "id": "section_subtitle",
+      "label": "Section Subtitle"
+    },
+    {
+      "type": "text",
+      "id": "padding_top_pc",
+      "label": "PC Padding Top (px)",
+      "default": "36px"
+    },
+    {
+      "type": "text",
+      "id": "padding_bottom_pc",
+      "label": "PC Padding Bottom (px)",
+      "default": "36px"
+    },
+    {
+      "type": "text",
+      "id": "padding_top_mobile",
+      "label": "Mobile Padding Top (px)",
+      "default": "18px"
+    },
+    {
+      "type": "text",
+      "id": "padding_bottom_mobile",
+      "label": "Mobile Padding Bottom (px)",
+      "default": "18px"
+    },
+    {
+      "type": "text",
+      "id": "margin_top_pc",
+      "label": "PC Margin Top (px)",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom_pc",
+      "label": "PC Margin Bottom (px)",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_top_mobile",
+      "label": "Mobile Margin Top (px)",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom_mobile",
+      "label": "Mobile Margin Bottom (px)",
+      "default": "0"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Base Section",
+      "category": "Custom Sections",
+      "settings": {
+        "section_title": "Section title",
+        "section_subtitle": "Section subtitle"
+      }
+    }
+  ]
+}
+{% endschema %}

@@ -73,6 +73,7 @@
     "heading": "Heading",
     "heading_size": "Heading size",
     "utilities": "Utilities",
+    "ws_section_shell": "Section header",
     "home_page": "Home page",
     "icon": "Icon",
     "image": "Image",
@@ -233,7 +234,8 @@
     "video_autoplay": "Videos will be muted by default",
     "video_external": "Use a YouTube or Vimeo URL",
     "pills_usage": "Used for applied filters, discount codes, and search suggestions",
-    "media_type_info": "Features are populated from your menu links"
+    "media_type_info": "Features are populated from your menu links",
+    "section_id": "Optional HTML id for anchor links. Leave blank to omit."
   },
   "names": {
     "column": "Column",
@@ -294,6 +296,7 @@
     "copyright": "Copyright",
     "count": "Count",
     "custom_section": "Custom section",
+    "ws_base_section": "WS base section",
     "description": "Description",
     // Block name for informational content containers
     "details": "Details",
@@ -1068,6 +1071,10 @@
     "secondary_button_border": "Secondary button border",
     "secondary_button_text": "Secondary button text",
     "secondary_font": "Secondary font",
+    "section_id": "Section ID",
+    "section_title": "Section title",
+    "section_subtitle": "Section subtitle",
+    "content_max_width": "Content max width",
     "section_width": "Section width",
     "seller_note": "Allow note to seller",
     "seller_note_open_by_default": "Open note to seller by default",
