@@ -1,14 +1,6 @@
 {% liquid
   assign content_max_width = section.settings.content_max_width | default: 1280
-  assign section_title = section.settings.section_title
-  assign section_subtitle = section.settings.section_subtitle
-  assign eyebrow = section.settings.eyebrow
   assign slide_count = section.blocks.size
-
-  assign has_header = false
-  if section_title != blank or section_subtitle != blank
-    assign has_header = true
-  endif
 %}
 
 <style>
@@ -40,7 +32,7 @@
   {% endif %}
 >
   <ws-recommended-carousel
-    class="ws-recommended-carousel__shell{% if has_header %} ws-recommended-carousel__shell--has-header{% endif %}"
+    class="ws-recommended-carousel__shell"
     {% if section.settings.section_id != blank %}
       id="{{ section.settings.section_id | escape }}"
     {% endif %}
@@ -48,42 +40,56 @@
     <div class="ws-recommended-carousel__inner">
       <div class="ws-recommended-carousel__layout">
         <div class="ws-recommended-carousel__content">
-          {% if eyebrow != blank %}
-            <p class="ws-recommended-carousel__eyebrow">{{ eyebrow }}</p>
-          {% endif %}
-
-          {% if has_header %}
-            <header class="ws-recommended-carousel__header">
-              {% if section_title != blank %}
-                <h2 class="ws-recommended-carousel__title">{{ section_title }}</h2>
-              {% endif %}
-              {% if section_subtitle != blank %}
-                <p class="ws-recommended-carousel__subtitle">{{ section_subtitle }}</p>
-              {% endif %}
-            </header>
-          {% endif %}
-
-          {% if section.settings.button_label != blank %}
-            <div class="ws-recommended-carousel__actions">
-              <a
-                class="ws-recommended-carousel__button"
-                {% if section.settings.button_link != blank %}
-                  href="{{ section.settings.button_link }}"
-                {% else %}
-                  role="link"
-                  aria-disabled="true"
-                {% endif %}
-                {% if section.settings.button_open_new_tab %}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                {% endif %}
-              >
-                {{ section.settings.button_label }}
-              </a>
-            </div>
-          {% endif %}
-
           {% if slide_count > 0 %}
+            <div class="ws-recommended-carousel__content-panels">
+              {% for block in section.blocks %}
+                <div
+                  class="ws-recommended-carousel__content-panel{% if forloop.first %} is-active{% endif %}"
+                  ref="contentPanels[]"
+                  data-panel-index="{{ forloop.index0 }}"
+                  {% unless forloop.first %}
+                    hidden
+                  {% endunless %}
+                  {{ block.shopify_attributes }}
+                >
+                  {% if block.settings.eyebrow != blank %}
+                    <p class="ws-recommended-carousel__eyebrow">{{ block.settings.eyebrow }}</p>
+                  {% endif %}
+
+                  {% if block.settings.title != blank or block.settings.subtitle != blank %}
+                    <header class="ws-recommended-carousel__header">
+                      {% if block.settings.title != blank %}
+                        <h2 class="ws-recommended-carousel__title">{{ block.settings.title }}</h2>
+                      {% endif %}
+                      {% if block.settings.subtitle != blank %}
+                        <p class="ws-recommended-carousel__subtitle">{{ block.settings.subtitle }}</p>
+                      {% endif %}
+                    </header>
+                  {% endif %}
+
+                  {% if block.settings.button_label != blank %}
+                    <div class="ws-recommended-carousel__actions">
+                      <a
+                        class="ws-recommended-carousel__button"
+                        {% if block.settings.button_link != blank %}
+                          href="{{ block.settings.button_link }}"
+                        {% else %}
+                          role="link"
+                          aria-disabled="true"
+                        {% endif %}
+                        {% if block.settings.button_open_new_tab %}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        {% endif %}
+                      >
+                        {{ block.settings.button_label }}
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+
             <div
               class="ws-recommended-carousel__pagination"
               role="tablist"
@@ -109,7 +115,7 @@
                 <div
                   class="ws-recommended-carousel__slide"
                   ref="slides[]"
-                  {{ block.shopify_attributes }}
+                  data-slide-index="{{ forloop.index0 }}"
                 >
                   {% if block.settings.media_type == 'video' and block.settings.video != blank %}
                     {{
@@ -162,8 +168,47 @@
   "blocks": [
     {
       "type": "ws-recommended-slide",
-      "name": "Media slide",
+      "name": "Slide",
       "settings": [
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Eyebrow"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "textarea",
+          "id": "subtitle",
+          "label": "Subtitle"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "checkbox",
+          "id": "button_open_new_tab",
+          "label": "Open in new tab",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Media"
+        },
         {
           "type": "select",
           "id": "media_type",
@@ -191,12 +236,6 @@
           "id": "video",
           "label": "Video",
           "visible_if": "{{ block.settings.media_type == 'video' }}"
-        },
-        {
-          "type": "text",
-          "id": "video_alt",
-          "label": "Video description",
-          "visible_if": "{{ block.settings.media_type == 'video' }}"
         }
       ]
     }
@@ -220,50 +259,7 @@
       "max": 1920,
       "step": 20,
       "unit": "px",
-      "default": 1280
-    },
-    {
-      "type": "text",
-      "id": "eyebrow",
-      "label": "Eyebrow",
-      "default": "MARINE SCIENCE ADVOCATE"
-    },
-    {
-      "type": "text",
-      "id": "section_title",
-      "label": "Section title",
-      "default": "Recommended by CAMERON SHAW"
-    },
-    {
-      "type": "textarea",
-      "id": "section_subtitle",
-      "label": "Section subtitle",
-      "default": "Protecting oceans through science and education."
-    },
-    {
-      "type": "header",
-      "content": "Button"
-    },
-    {
-      "type": "text",
-      "id": "button_label",
-      "label": "Button label",
-      "default": "SHOP NOW"
-    },
-    {
-      "type": "url",
-      "id": "button_link",
-      "label": "Button link"
-    },
-    {
-      "type": "checkbox",
-      "id": "button_open_new_tab",
-      "label": "Open in new tab",
-      "default": false
-    },
-    {
-      "type": "header",
-      "content": "Appearance"
+      "default": 1440
     },
     {
       "type": "color_scheme",
@@ -298,6 +294,30 @@
       "id": "padding_bottom_mobile",
       "label": "Mobile padding bottom",
       "default": "18px"
+    },
+    {
+      "type": "text",
+      "id": "margin_top_pc",
+      "label": "PC margin top",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom_pc",
+      "label": "PC margin bottom",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_top_mobile",
+      "label": "Mobile margin top",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom_mobile",
+      "label": "Mobile margin bottom",
+      "default": "0"
     }
   ],
   "presets": [
@@ -308,24 +328,18 @@
         {
           "type": "ws-recommended-slide",
           "settings": {
+            "eyebrow": "MARINE SCIENCE ADVOCATE",
+            "title": "Recommended by CAMERON SHAW",
+            "subtitle": "Protecting oceans through science and education.",
             "media_type": "image"
           }
         },
         {
           "type": "ws-recommended-slide",
           "settings": {
-            "media_type": "image"
-          }
-        },
-        {
-          "type": "ws-recommended-slide",
-          "settings": {
-            "media_type": "image"
-          }
-        },
-        {
-          "type": "ws-recommended-slide",
-          "settings": {
+            "eyebrow": "MARINE BIOLOGIST / SCIENTIFIC DIVER",
+            "title": "Recommended by JANICE MARQUEZ DE LA PLATA",
+            "subtitle": "Advocating for ocean protection and mindful living by the sea.",
             "media_type": "image"
           }
         }
