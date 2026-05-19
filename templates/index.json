@@ -6,7 +6,8 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
     "hero_jVaWmY": {
       "type": "hero",
@@ -65,6 +66,7 @@
         "custom_mobile_media": false,
         "media_type_1_mobile": "image",
         "media_type_2_mobile": "image",
+        "link": "",
         "open_in_new_tab": false,
         "content_direction": "column",
         "vertical_on_mobile": true,
@@ -281,10 +283,70 @@
         "padding-block-start": 48,
         "padding-block-end": 48
       }
+    },
+    "ws_recommended_carousel_8KeKJD": {
+      "type": "ws-recommended-carousel",
+      "blocks": {
+        "ws_recommended_slide_Vzqydj": {
+          "type": "ws-recommended-slide",
+          "settings": {
+            "media_type": "video",
+            "video": "shopify://files/videos/377fd314abaf4d52a7976f7d7bef660e.mp4",
+            "video_alt": ""
+          }
+        },
+        "ws_recommended_slide_hE3CRK": {
+          "type": "ws-recommended-slide",
+          "settings": {
+            "media_type": "image",
+            "image": "shopify://shop_images/indian_4.webp",
+            "video_alt": ""
+          }
+        },
+        "ws_recommended_slide_fjthyn": {
+          "type": "ws-recommended-slide",
+          "settings": {
+            "media_type": "image",
+            "image": "shopify://shop_images/indian_2.webp",
+            "video_alt": ""
+          }
+        },
+        "ws_recommended_slide_GKnDYX": {
+          "type": "ws-recommended-slide",
+          "settings": {
+            "media_type": "image",
+            "image": "shopify://shop_images/indian_3.webp",
+            "video_alt": ""
+          }
+        }
+      },
+      "block_order": [
+        "ws_recommended_slide_Vzqydj",
+        "ws_recommended_slide_hE3CRK",
+        "ws_recommended_slide_fjthyn",
+        "ws_recommended_slide_GKnDYX"
+      ],
+      "name": "Recommended Carousel",
+      "settings": {
+        "section_id": "",
+        "content_max_width": 1280,
+        "eyebrow": "MARINE SCIENCE ADVOCATE",
+        "section_title": "Recommended by CAMERON SHAW",
+        "section_subtitle": "Protecting oceans through science and education.",
+        "button_label": "SHOP NOW",
+        "button_link": "",
+        "button_open_new_tab": false,
+        "color_scheme": "",
+        "padding_top_pc": "36px",
+        "padding_bottom_pc": "36px",
+        "padding_top_mobile": "18px",
+        "padding_bottom_mobile": "18px"
+      }
     }
   },
   "order": [
     "hero_jVaWmY",
-    "product_list_fa6P9H"
+    "product_list_fa6P9H",
+    "ws_recommended_carousel_8KeKJD"
   ]
 }
