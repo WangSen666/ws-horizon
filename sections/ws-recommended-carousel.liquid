@@ -1,0 +1,336 @@
+{% liquid
+  assign content_max_width = section.settings.content_max_width | default: 1280
+  assign section_title = section.settings.section_title
+  assign section_subtitle = section.settings.section_subtitle
+  assign eyebrow = section.settings.eyebrow
+  assign slide_count = section.blocks.size
+
+  assign has_header = false
+  if section_title != blank or section_subtitle != blank
+    assign has_header = true
+  endif
+%}
+
+<style>
+  .ws-recommended-carousel-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top_pc }};
+    padding-bottom: {{ section.settings.padding_bottom_pc }};
+    margin-top: {{ section.settings.margin_top_pc }};
+    margin-bottom: {{ section.settings.margin_bottom_pc }};
+  }
+
+  .ws-recommended-carousel-{{ section.id }} .ws-recommended-carousel__inner {
+    max-width: {{ content_max_width }}px;
+  }
+
+  @media (max-width: 768px) {
+    .ws-recommended-carousel-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top_mobile }};
+      padding-bottom: {{ section.settings.padding_bottom_mobile }};
+      margin-top: {{ section.settings.margin_top_mobile }};
+      margin-bottom: {{ section.settings.margin_bottom_mobile }};
+    }
+  }
+</style>
+
+<div
+  class="section color-{{ section.settings.color_scheme }} ws-recommended-carousel ws-recommended-carousel-{{ section.id }}"
+  {% if request.visual_preview_mode %}
+    data-shopify-visual-preview
+  {% endif %}
+>
+  <ws-recommended-carousel
+    class="ws-recommended-carousel__shell{% if has_header %} ws-recommended-carousel__shell--has-header{% endif %}"
+    {% if section.settings.section_id != blank %}
+      id="{{ section.settings.section_id | escape }}"
+    {% endif %}
+  >
+    <div class="ws-recommended-carousel__inner">
+      <div class="ws-recommended-carousel__layout">
+        <div class="ws-recommended-carousel__content">
+          {% if eyebrow != blank %}
+            <p class="ws-recommended-carousel__eyebrow">{{ eyebrow }}</p>
+          {% endif %}
+
+          {% if has_header %}
+            <header class="ws-recommended-carousel__header">
+              {% if section_title != blank %}
+                <h2 class="ws-recommended-carousel__title">{{ section_title }}</h2>
+              {% endif %}
+              {% if section_subtitle != blank %}
+                <p class="ws-recommended-carousel__subtitle">{{ section_subtitle }}</p>
+              {% endif %}
+            </header>
+          {% endif %}
+
+          {% if section.settings.button_label != blank %}
+            <div class="ws-recommended-carousel__actions">
+              <a
+                class="ws-recommended-carousel__button"
+                {% if section.settings.button_link != blank %}
+                  href="{{ section.settings.button_link }}"
+                {% else %}
+                  role="link"
+                  aria-disabled="true"
+                {% endif %}
+                {% if section.settings.button_open_new_tab %}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                {% endif %}
+              >
+                {{ section.settings.button_label }}
+              </a>
+            </div>
+          {% endif %}
+
+          {% if slide_count > 0 %}
+            <div
+              class="ws-recommended-carousel__pagination"
+              role="tablist"
+              aria-label="{{ 'accessibility.slideshow' | t }}"
+            >
+              {% for block in section.blocks %}
+                <button
+                  type="button"
+                  class="ws-recommended-carousel__dot{% if forloop.first %} is-active{% endif %}"
+                  ref="dots[]"
+                  aria-label="{{ 'accessibility.slide_status' | t: index: forloop.index, length: slide_count }}"
+                  aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+                ></button>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        {% if slide_count > 0 %}
+          <div class="ws-recommended-carousel__media-panel">
+            <div class="ws-recommended-carousel__track" ref="track">
+              {% for block in section.blocks %}
+                <div
+                  class="ws-recommended-carousel__slide"
+                  ref="slides[]"
+                  {{ block.shopify_attributes }}
+                >
+                  {% if block.settings.media_type == 'video' and block.settings.video != blank %}
+                    {{
+                      block.settings.video
+                      | video_tag:
+                        image_size: '1600x',
+                        autoplay: true,
+                        loop: true,
+                        muted: true,
+                        playsinline: true,
+                        controls: false,
+                        class: 'ws-recommended-carousel__media'
+                    }}
+                  {% elsif block.settings.image != blank %}
+                    {{
+                      block.settings.image
+                      | image_url: width: 1600
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '400, 600, 800, 1000, 1200, 1600',
+                        sizes: '(min-width: 750px) 42vw, 78vw',
+                        class: 'ws-recommended-carousel__media',
+                        alt: block.settings.image.alt
+                    }}
+                  {% else %}
+                    <div class="ws-recommended-carousel__media ws-recommended-carousel__media--placeholder">
+                      {{ 'image' | placeholder_svg_tag: 'placeholder' }}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </ws-recommended-carousel>
+</div>
+
+{{ 'ws-recommended-carousel.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'ws-recommended-carousel.js' | asset_url }}" type="module"></script>
+
+{% schema %}
+{
+  "name": "Recommended Carousel",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [
+    {
+      "type": "ws-recommended-slide",
+      "name": "Media slide",
+      "settings": [
+        {
+          "type": "select",
+          "id": "media_type",
+          "label": "Media type",
+          "options": [
+            {
+              "value": "image",
+              "label": "Image"
+            },
+            {
+              "value": "video",
+              "label": "Video"
+            }
+          ],
+          "default": "image"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "visible_if": "{{ block.settings.media_type == 'image' }}"
+        },
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video",
+          "visible_if": "{{ block.settings.media_type == 'video' }}"
+        },
+        {
+          "type": "text",
+          "id": "video_alt",
+          "label": "Video description",
+          "visible_if": "{{ block.settings.media_type == 'video' }}"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Shell"
+    },
+    {
+      "type": "text",
+      "id": "section_id",
+      "label": "Section ID",
+      "info": "Custom HTML ID for anchor links"
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "min": 960,
+      "max": 1920,
+      "step": 20,
+      "unit": "px",
+      "default": 1280
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "MARINE SCIENCE ADVOCATE"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section title",
+      "default": "Recommended by CAMERON SHAW"
+    },
+    {
+      "type": "textarea",
+      "id": "section_subtitle",
+      "label": "Section subtitle",
+      "default": "Protecting oceans through science and education."
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "SHOP NOW"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "checkbox",
+      "id": "button_open_new_tab",
+      "label": "Open in new tab",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Appearance"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "text",
+      "id": "padding_top_pc",
+      "label": "PC padding top",
+      "default": "36px"
+    },
+    {
+      "type": "text",
+      "id": "padding_bottom_pc",
+      "label": "PC padding bottom",
+      "default": "36px"
+    },
+    {
+      "type": "text",
+      "id": "padding_top_mobile",
+      "label": "Mobile padding top",
+      "default": "18px"
+    },
+    {
+      "type": "text",
+      "id": "padding_bottom_mobile",
+      "label": "Mobile padding bottom",
+      "default": "18px"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Recommended Carousel",
+      "category": "Custom Sections",
+      "blocks": [
+        {
+          "type": "ws-recommended-slide",
+          "settings": {
+            "media_type": "image"
+          }
+        },
+        {
+          "type": "ws-recommended-slide",
+          "settings": {
+            "media_type": "image"
+          }
+        },
+        {
+          "type": "ws-recommended-slide",
+          "settings": {
+            "media_type": "image"
+          }
+        },
+        {
+          "type": "ws-recommended-slide",
+          "settings": {
+            "media_type": "image"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
