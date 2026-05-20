@@ -1,0 +1,419 @@
+{% liquid
+  assign slide_count = section.blocks.size
+  assign autoplay = false
+  if section.settings.autoplay and slide_count > 1
+    assign autoplay = true
+  endif
+  assign overlay_position = section.settings.overlay_position | default: 'justify-center items-start'
+  assign overlay_text_align = section.settings.overlay_text_align | default: 'text-center'
+%}
+
+<style>
+  .ws-hero-carousel-{{ section.id }} {
+    --ws-hero-carousel-height: {{ section.settings.slide_height_pc }};
+    --ws-hero-carousel-overlay: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+    margin-top: {{ section.settings.margin_top_pc }};
+    margin-bottom: {{ section.settings.margin_bottom_pc }};
+  }
+
+  @media (max-width: 768px) {
+    .ws-hero-carousel-{{ section.id }} {
+      --ws-hero-carousel-height: {{ section.settings.slide_height_mobile }};
+      margin-top: {{ section.settings.margin_top_mobile }};
+      margin-bottom: {{ section.settings.margin_bottom_mobile }};
+    }
+  }
+</style>
+
+<div
+  class="section ws-hero-carousel ws-hero-carousel-{{ section.id }}"
+  {% if section.settings.section_id != blank %}
+    id="{{ section.settings.section_id | escape }}"
+  {% endif %}
+  {% if request.visual_preview_mode %}
+    data-shopify-visual-preview
+  {% endif %}
+>
+  <ws-hero-carousel
+    class="ws-hero-carousel__root"
+    {% if autoplay %}
+      autoplay="{{ section.settings.autoplay_interval }}"
+    {% endif %}
+  >
+    <div class="ws-hero-carousel__viewport" ref="viewport">
+      {% if slide_count > 0 %}
+        {% for block in section.blocks %}
+          <div
+            class="ws-hero-carousel__slide{% if forloop.first %} is-active{% endif %}"
+            ref="slides[]"
+            data-slide-index="{{ forloop.index0 }}"
+            {{ block.shopify_attributes }}
+          >
+            <div class="ws-hero-carousel__frame">
+              <div class="ws-hero-carousel__media">
+                {% if block.settings.media_type == 'video' and block.settings.video != blank %}
+                  {{
+                    block.settings.video
+                    | video_tag:
+                      image_size: '2400x',
+                      autoplay: true,
+                      loop: true,
+                      muted: true,
+                      playsinline: true,
+                      controls: false,
+                      class: 'ws-hero-carousel__media-item'
+                  }}
+                {% elsif block.settings.image != blank %}
+                  {{
+                    block.settings.image
+                    | image_url: width: 2400
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '750, 1100, 1500, 2000, 2400',
+                      sizes: '100vw',
+                      class: 'ws-hero-carousel__media-item',
+                      alt: block.settings.image.alt
+                  }}
+                {% else %}
+                  <div class="ws-hero-carousel__media-item ws-hero-carousel__media-item--placeholder">
+                    {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder' }}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="ws-hero-carousel__overlay {{ overlay_position }}">
+                <div class="ws-hero-carousel__content {{ overlay_text_align }}">
+                  {% if block.settings.title != blank %}
+                    <h2 class="ws-hero-carousel__title">{{ block.settings.title }}</h2>
+                  {% endif %}
+
+                  {% if block.settings.button_1_label != blank or block.settings.button_2_label != blank %}
+                    <div class="ws-hero-carousel__actions">
+                      {% if block.settings.button_1_label != blank %}
+                        <a
+                          class="ws-hero-carousel__button ws-hero-carousel__button--{{ block.settings.button_1_style }}"
+                          {% if block.settings.button_1_link != blank %}
+                            href="{{ block.settings.button_1_link }}"
+                          {% else %}
+                            role="link"
+                            aria-disabled="true"
+                          {% endif %}
+                          {% if block.settings.button_1_open_new_tab %}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          {% endif %}
+                        >
+                          {{ block.settings.button_1_label }}
+                        </a>
+                      {% endif %}
+
+                      {% if block.settings.button_2_label != blank %}
+                        <a
+                          class="ws-hero-carousel__button ws-hero-carousel__button--{{ block.settings.button_2_style }}"
+                          {% if block.settings.button_2_link != blank %}
+                            href="{{ block.settings.button_2_link }}"
+                          {% else %}
+                            role="link"
+                            aria-disabled="true"
+                          {% endif %}
+                          {% if block.settings.button_2_open_new_tab %}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          {% endif %}
+                        >
+                          {{ block.settings.button_2_label }}
+                        </a>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="ws-hero-carousel__slide is-active" ref="slides[]">
+          <div class="ws-hero-carousel__frame">
+            <div class="ws-hero-carousel__media">
+              <div class="ws-hero-carousel__media-item ws-hero-carousel__media-item--placeholder">
+                {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if slide_count > 1 and section.settings.show_arrows %}
+      <button
+        type="button"
+        class="ws-hero-carousel__arrow ws-hero-carousel__arrow--prev"
+        ref="previous"
+        aria-label="{{ 'accessibility.slideshow_previous' | t }}"
+      >
+        <span class="ws-hero-carousel__arrow-icon" aria-hidden="true"></span>
+      </button>
+      <button
+        type="button"
+        class="ws-hero-carousel__arrow ws-hero-carousel__arrow--next"
+        ref="next"
+        aria-label="{{ 'accessibility.slideshow_next' | t }}"
+      >
+        <span class="ws-hero-carousel__arrow-icon" aria-hidden="true"></span>
+      </button>
+    {% endif %}
+
+    {% if slide_count > 1 and section.settings.show_dots %}
+      <div class="ws-hero-carousel__pagination" role="tablist" aria-label="{{ 'accessibility.slideshow' | t }}">
+        {% for block in section.blocks %}
+          <button
+            type="button"
+            class="ws-hero-carousel__dot{% if forloop.first %} is-active{% endif %}"
+            ref="dots[]"
+            aria-label="{{ 'accessibility.slide_status' | t: index: forloop.index, length: slide_count }}"
+            aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+          ></button>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </ws-hero-carousel>
+</div>
+
+{{ 'ws-hero-carousel.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'ws-hero-carousel.js' | asset_url }}" type="module"></script>
+
+{% schema %}
+{
+  "name": "Hero Banner",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [
+    {
+      "type": "ws-hero-carousel-slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Media"
+        },
+        {
+          "type": "select",
+          "id": "media_type",
+          "label": "Media type",
+          "options": [
+            { "value": "image", "label": "Image" },
+            { "value": "video", "label": "Video" }
+          ],
+          "default": "image"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "visible_if": "{{ block.settings.media_type == 'image' }}"
+        },
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video",
+          "visible_if": "{{ block.settings.media_type == 'video' }}"
+        },
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Ocean Collection New Drop"
+        },
+        {
+          "type": "text",
+          "id": "button_1_label",
+          "label": "Button 1 label",
+          "default": "SHOP STYLE"
+        },
+        {
+          "type": "url",
+          "id": "button_1_link",
+          "label": "Button 1 link"
+        },
+        {
+          "type": "select",
+          "id": "button_1_style",
+          "label": "Button 1 style",
+          "options": [
+            { "value": "outline", "label": "Outline" },
+            { "value": "solid", "label": "Solid" }
+          ],
+          "default": "outline"
+        },
+        {
+          "type": "checkbox",
+          "id": "button_1_open_new_tab",
+          "label": "Button 1 open in new tab",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "button_2_label",
+          "label": "Button 2 label",
+          "default": "VIEW MORE"
+        },
+        {
+          "type": "url",
+          "id": "button_2_link",
+          "label": "Button 2 link"
+        },
+        {
+          "type": "select",
+          "id": "button_2_style",
+          "label": "Button 2 style",
+          "options": [
+            { "value": "outline", "label": "Outline" },
+            { "value": "solid", "label": "Solid" }
+          ],
+          "default": "solid"
+        },
+        {
+          "type": "checkbox",
+          "id": "button_2_open_new_tab",
+          "label": "Button 2 open in new tab",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_id",
+      "label": "Section ID"
+    },
+    {
+      "type": "text",
+      "id": "slide_height_pc",
+      "label": "Slide height (PC)",
+      "default": "560px"
+    },
+    {
+      "type": "text",
+      "id": "slide_height_mobile",
+      "label": "Slide height (mobile)",
+      "default": "480px"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay darkness",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 35
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show arrows",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "Show dots",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_interval",
+      "label": "Autoplay interval",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "text",
+      "id": "margin_top_pc",
+      "label": "PC margin top",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom_pc",
+      "label": "PC margin bottom",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_top_mobile",
+      "label": "Mobile margin top",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom_mobile",
+      "label": "Mobile margin bottom",
+      "default": "0"
+    },
+    {
+      "type": "select",
+      "id": "overlay_position",
+      "label": "Text position (PC)",
+      "options": [
+        { "value": "justify-start items-start", "label": "Top left" },
+        { "value": "justify-center items-start", "label": "Top center" },
+        { "value": "justify-end items-start", "label": "Top right" },
+        { "value": "justify-start items-center", "label": "Middle left" },
+        { "value": "justify-center items-center", "label": "Middle center" },
+        { "value": "justify-end items-center", "label": "Middle right" },
+        { "value": "justify-start items-end", "label": "Bottom left" },
+        { "value": "justify-center items-end", "label": "Bottom center" },
+        { "value": "justify-end items-end", "label": "Bottom right" }
+      ],
+      "default": "justify-center items-start"
+    },
+    {
+      "type": "select",
+      "id": "overlay_text_align",
+      "label": "Text alignment (PC)",
+      "options": [
+        { "value": "text-start", "label": "Left" },
+        { "value": "text-center", "label": "Center" },
+        { "value": "text-end", "label": "Right" }
+      ],
+      "default": "text-center"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Banner",
+      "category": "Custom Sections",
+      "blocks": [
+        {
+          "type": "ws-hero-carousel-slide",
+          "settings": {
+            "title": "Ocean Collection New Drop",
+            "button_1_label": "SHOP STYLE",
+            "button_1_style": "outline",
+            "button_2_label": "VIEW MORE",
+            "button_2_style": "solid",
+            "media_type": "image"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
