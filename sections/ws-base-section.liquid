@@ -1,5 +1,5 @@
 {% liquid
-  assign content_max_width = section.settings.content_max_width | default: 1280
+  assign content_max_width = section.settings.content_max_width
   assign section_title = section.settings.section_title
   assign section_subtitle = section.settings.section_subtitle
 
@@ -52,7 +52,7 @@
       {% if section.settings.section_id != blank %}
         id="{{ section.settings.section_id | escape }}"
       {% endif %}
-      style="--ws-base-section-max-width: {{ content_max_width }}px;"
+      style="--ws-base-section-max-width: {{ content_max_width }};"
     >
       <div class="ws-base-section__inner">
         {% if has_header %}
@@ -154,14 +154,10 @@
       "info": "Custom HTML ID"
     },
     {
-      "type": "range",
+      "type": "text",
       "id": "content_max_width",
       "label": "Content Max Width",
-      "min": 960,
-      "max": 1920,
-      "step": 20,
-      "unit": "px",
-      "default": 1280
+      "default": "unset"
     },
     {
       "type": "text",

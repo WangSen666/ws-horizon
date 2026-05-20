@@ -1,5 +1,5 @@
 {% liquid
-  assign content_max_width = section.settings.content_max_width | default: 1280
+  assign content_max_width = section.settings.content_max_width | default: "unset"
   assign slide_count = section.blocks.size
 %}
 
@@ -12,7 +12,7 @@
   }
 
   .ws-recommended-carousel-{{ section.id }} .ws-recommended-carousel__inner {
-    max-width: {{ content_max_width }}px;
+    max-width: {{ content_max_width }};
   }
 
   @media (max-width: 768px) {
@@ -252,14 +252,10 @@
       "info": "Custom HTML ID for anchor links"
     },
     {
-      "type": "range",
+      "type": "text",
       "id": "content_max_width",
       "label": "Content max width",
-      "min": 960,
-      "max": 1920,
-      "step": 20,
-      "unit": "px",
-      "default": 1440
+      "default": "unset"
     },
     {
       "type": "color_scheme",
