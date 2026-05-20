@@ -290,33 +290,53 @@
         "ws_recommended_slide_Vzqydj": {
           "type": "ws-recommended-slide",
           "settings": {
+            "eyebrow": "Marine science advocate",
+            "title": "Recommended by CAMERON SHAW",
+            "subtitle": "Protecting oceans through science and education.",
+            "button_label": "Show Now",
+            "button_link": "",
+            "button_open_new_tab": false,
             "media_type": "video",
-            "video": "shopify://files/videos/377fd314abaf4d52a7976f7d7bef660e.mp4",
-            "video_alt": ""
+            "video": "shopify://files/videos/377fd314abaf4d52a7976f7d7bef660e.mp4"
           }
         },
         "ws_recommended_slide_hE3CRK": {
           "type": "ws-recommended-slide",
           "settings": {
+            "eyebrow": "Marine biologist / Author / Science communicator",
+            "title": "Recommended by CARLEE JACKSON",
+            "subtitle": "Making waves in marine science.",
+            "button_label": "Show Now",
+            "button_link": "",
+            "button_open_new_tab": false,
             "media_type": "image",
-            "image": "shopify://shop_images/indian_4.webp",
-            "video_alt": ""
+            "image": "shopify://shop_images/indian_4.webp"
           }
         },
         "ws_recommended_slide_fjthyn": {
           "type": "ws-recommended-slide",
           "settings": {
+            "eyebrow": "Marine biologist / Scientific diver",
+            "title": "Recommended by JANICE MARQUEZ DE LA PLATA",
+            "subtitle": "Advocating for ocean protection and mindful living by the sea.",
+            "button_label": "Show Now",
+            "button_link": "",
+            "button_open_new_tab": false,
             "media_type": "image",
-            "image": "shopify://shop_images/indian_2.webp",
-            "video_alt": ""
+            "image": "shopify://shop_images/indian_2.webp"
           }
         },
         "ws_recommended_slide_GKnDYX": {
           "type": "ws-recommended-slide",
           "settings": {
+            "eyebrow": "Environmentalist / Water Activist",
+            "title": "Recommended by MICHELLE COLSON",
+            "subtitle": "Guardian of the waters.",
+            "button_label": "Show Now",
+            "button_link": "",
+            "button_open_new_tab": false,
             "media_type": "image",
-            "image": "shopify://shop_images/indian_3.webp",
-            "video_alt": ""
+            "image": "shopify://shop_images/indian_3.webp"
           }
         }
       },
@@ -330,17 +350,15 @@
       "settings": {
         "section_id": "",
         "content_max_width": 1280,
-        "eyebrow": "MARINE SCIENCE ADVOCATE",
-        "section_title": "Recommended by CAMERON SHAW",
-        "section_subtitle": "Protecting oceans through science and education.",
-        "button_label": "SHOP NOW",
-        "button_link": "",
-        "button_open_new_tab": false,
         "color_scheme": "",
         "padding_top_pc": "36px",
         "padding_bottom_pc": "36px",
         "padding_top_mobile": "18px",
-        "padding_bottom_mobile": "18px"
+        "padding_bottom_mobile": "18px",
+        "margin_top_pc": "0",
+        "margin_bottom_pc": "0",
+        "margin_top_mobile": "0",
+        "margin_bottom_mobile": "0"
       }
     }
   },
