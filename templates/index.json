@@ -18,11 +18,11 @@
             "media_type": "image",
             "image": "shopify://shop_images/2.webp",
             "title": "Ocean Collection New Drop",
-            "button_1_label": "",
+            "button_1_label": "3",
             "button_1_link": "",
             "button_1_style": "outline",
             "button_1_open_new_tab": false,
-            "button_2_label": "",
+            "button_2_label": "3",
             "button_2_link": "",
             "button_2_style": "solid",
             "button_2_open_new_tab": false
@@ -63,7 +63,7 @@
         "margin_bottom_pc": "0",
         "margin_top_mobile": "0",
         "margin_bottom_mobile": "0",
-        "overlay_position": "justify-center items-start",
+        "overlay_position": "justify-start items-center",
         "overlay_text_align": "text-center"
       }
     },
