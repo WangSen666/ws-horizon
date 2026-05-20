@@ -26,7 +26,7 @@
 </style>
 
 <div
-  class="section ws-hero-carousel ws-hero-carousel-{{ section.id }}"
+  class="section section--full-width ws-hero-carousel ws-hero-carousel-{{ section.id }}"
   {% if section.settings.section_id != blank %}
     id="{{ section.settings.section_id | escape }}"
   {% endif %}
@@ -51,42 +51,96 @@
           >
             <div class="ws-hero-carousel__frame">
               <div class="ws-hero-carousel__media">
-                {% if block.settings.media_type == 'video' and block.settings.video != blank %}
-                  {{
-                    block.settings.video
-                    | video_tag:
-                      image_size: '2400x',
-                      autoplay: true,
-                      loop: true,
-                      muted: true,
-                      playsinline: true,
-                      controls: false,
-                      class: 'ws-hero-carousel__media-item'
-                  }}
-                {% elsif block.settings.image != blank %}
-                  {{
-                    block.settings.image
-                    | image_url: width: 2400
-                    | image_tag:
-                      loading: 'lazy',
-                      widths: '750, 1100, 1500, 2000, 2400',
-                      sizes: '100vw',
-                      class: 'ws-hero-carousel__media-item',
-                      alt: block.settings.image.alt
-                  }}
-                {% else %}
-                  <div class="ws-hero-carousel__media-item ws-hero-carousel__media-item--placeholder">
-                    {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder' }}
-                  </div>
-                {% endif %}
-              </div>
+                <div class="ws-hero-carousel__media-desktop">
+                  {% if block.settings.media_type == 'video' and block.settings.video != blank %}
+                    {{
+                      block.settings.video
+                      | video_tag:
+                        image_size: '2400x',
+                        autoplay: true,
+                        loop: true,
+                        muted: true,
+                        playsinline: true,
+                        controls: false,
+                        class: 'ws-hero-carousel__media-item'
+                    }}
+                  {% elsif block.settings.image != blank %}
+                    {{
+                      block.settings.image
+                      | image_url: width: 2400
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '750, 1100, 1500, 2000, 2400',
+                        sizes: '100vw',
+                        class: 'ws-hero-carousel__media-item',
+                        alt: block.settings.image.alt
+                    }}
+                  {% else %}
+                    <div class="ws-hero-carousel__media-item ws-hero-carousel__media-item--placeholder">
+                      {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder' }}
+                    </div>
+                  {% endif %}
+                </div>
 
+                <div class="ws-hero-carousel__media-mobile">
+                  {% if block.settings.mobile_media_type == 'video' and block.settings.mobile_video != blank %}
+                    {{
+                      block.settings.mobile_video
+                      | video_tag:
+                        image_size: '1600x',
+                        autoplay: true,
+                        loop: true,
+                        muted: true,
+                        playsinline: true,
+                        controls: false,
+                        class: 'ws-hero-carousel__media-item'
+                    }}
+                  {% elsif block.settings.mobile_media_type == 'image' and block.settings.mobile_image != blank %}
+                    {{
+                      block.settings.mobile_image
+                      | image_url: width: 1600
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '360, 540, 750, 960, 1200, 1600',
+                        sizes: '100vw',
+                        class: 'ws-hero-carousel__media-item',
+                        alt: block.settings.mobile_image.alt
+                    }}
+                  {% elsif block.settings.media_type == 'video' and block.settings.video != blank %}
+                    {{
+                      block.settings.video
+                      | video_tag:
+                        image_size: '1600x',
+                        autoplay: true,
+                        loop: true,
+                        muted: true,
+                        playsinline: true,
+                        controls: false,
+                        class: 'ws-hero-carousel__media-item'
+                    }}
+                  {% elsif block.settings.image != blank %}
+                    {{
+                      block.settings.image
+                      | image_url: width: 1600
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '360, 540, 750, 960, 1200, 1600',
+                        sizes: '100vw',
+                        class: 'ws-hero-carousel__media-item',
+                        alt: block.settings.image.alt
+                    }}
+                  {% else %}
+                    <div class="ws-hero-carousel__media-item ws-hero-carousel__media-item--placeholder">
+                      {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder' }}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
               <div class="ws-hero-carousel__overlay {{ overlay_position }}">
                 <div class="ws-hero-carousel__content {{ overlay_text_align }}">
                   {% if block.settings.title != blank %}
                     <h2 class="ws-hero-carousel__title">{{ block.settings.title }}</h2>
                   {% endif %}
-
                   {% if block.settings.button_1_label != blank or block.settings.button_2_label != blank %}
                     <div class="ws-hero-carousel__actions">
                       {% if block.settings.button_1_label != blank %}
@@ -151,7 +205,15 @@
         ref="previous"
         aria-label="{{ 'accessibility.slideshow_previous' | t }}"
       >
-        <span class="ws-hero-carousel__arrow-icon" aria-hidden="true"></span>
+        <svg
+          class="ws-hero-carousel__arrow-svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M14.5 6.5L9 12L14.5 17.5" />
+        </svg>
       </button>
       <button
         type="button"
@@ -159,7 +221,15 @@
         ref="next"
         aria-label="{{ 'accessibility.slideshow_next' | t }}"
       >
-        <span class="ws-hero-carousel__arrow-icon" aria-hidden="true"></span>
+        <svg
+          class="ws-hero-carousel__arrow-svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M9.5 6.5L15 12L9.5 17.5" />
+        </svg>
       </button>
     {% endif %}
 
@@ -219,6 +289,32 @@
           "id": "video",
           "label": "Video",
           "visible_if": "{{ block.settings.media_type == 'video' }}"
+        },
+        {
+          "type": "header",
+          "content": "Mobile media (optional)"
+        },
+        {
+          "type": "select",
+          "id": "mobile_media_type",
+          "label": "Mobile media type",
+          "options": [
+            { "value": "image", "label": "Image" },
+            { "value": "video", "label": "Video" }
+          ],
+          "default": "image"
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_image",
+          "label": "Mobile image",
+          "visible_if": "{{ block.settings.mobile_media_type == 'image' }}"
+        },
+        {
+          "type": "video",
+          "id": "mobile_video",
+          "label": "Mobile video",
+          "visible_if": "{{ block.settings.mobile_media_type == 'video' }}"
         },
         {
           "type": "header",

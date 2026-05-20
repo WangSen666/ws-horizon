@@ -56,6 +56,16 @@ ws-hero-carousel {
   background: #111;
 }
 
+.ws-hero-carousel__media-desktop,
+.ws-hero-carousel__media-mobile {
+  width: 100%;
+  height: 100%;
+}
+
+.ws-hero-carousel__media-mobile {
+  display: none;
+}
+
 .ws-hero-carousel__media-item {
   display: block;
   width: 100%;
@@ -78,13 +88,18 @@ ws-hero-carousel {
 
 .ws-hero-carousel__overlay {
   display: flex;
-  padding: clamp(24px, 4vw, 56px);
+  width: 100%;
+  box-sizing: border-box;
+  padding-block: clamp(24px, 4vw, 56px);
+  padding-inline: var(--util-page-margin-offset, var(--page-margin, 16px));
   background: linear-gradient(
     180deg,
     rgb(0 0 0 / 0) 35%,
     rgb(0 0 0 / var(--ws-hero-carousel-overlay, 0.35)) 100%
   );
   pointer-events: none;
+  z-index:2;
+  
 }
 
 @media screen and (min-width: 750px) {
@@ -118,7 +133,7 @@ ws-hero-carousel {
   flex-direction: column;
   gap: clamp(16px, 2.5vw, 28px);
   width: 100%;
-  max-width: min(640px, 92vw);
+  max-width: var(--page-content-width);
   pointer-events: auto;
 }
 
@@ -210,8 +225,9 @@ ws-hero-carousel {
   position: absolute;
   top: 50%;
   z-index: 3;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 44px;
   height: 44px;
   padding: 0;
@@ -231,27 +247,42 @@ ws-hero-carousel {
 }
 
 .ws-hero-carousel__arrow--prev {
-  left: clamp(12px, 2vw, 24px);
+  left: max(8px, calc(var(--util-page-margin-offset, var(--page-margin, 16px)) - 68px));
 }
 
 .ws-hero-carousel__arrow--next {
-  right: clamp(12px, 2vw, 24px);
+  right: max(8px, calc(var(--util-page-margin-offset, var(--page-margin, 16px)) - 68px));
 }
 
-.ws-hero-carousel__arrow-icon {
+@media screen and (min-width: 750px) and (max-width: 1599px) {
+  .ws-hero-carousel__overlay {
+    padding-inline: calc(var(--util-page-margin-offset, var(--page-margin, 16px)) + 32px);
+  }
+
+  .ws-hero-carousel__arrow--prev {
+    left: max(8px, calc(var(--util-page-margin-offset, var(--page-margin, 16px)) - 92px));
+  }
+
+  .ws-hero-carousel__arrow--next {
+    right: max(8px, calc(var(--util-page-margin-offset, var(--page-margin, 16px)) - 92px));
+  }
+
+  .ws-hero-carousel__title {
+    font-size: clamp(24px, 4.2vw, 44px);
+  }
+}
+
+.ws-hero-carousel__arrow-svg {
+  width: 24px;
+  height: 20px;
   display: block;
-  width: 10px;
-  height: 10px;
-  border-top: 2px solid currentColor;
-  border-right: 2px solid currentColor;
 }
 
-.ws-hero-carousel__arrow--prev .ws-hero-carousel__arrow-icon {
-  transform: rotate(-135deg) translate(1px, -1px);
-}
-
-.ws-hero-carousel__arrow--next .ws-hero-carousel__arrow-icon {
-  transform: rotate(45deg) translate(-1px, 1px);
+.ws-hero-carousel__arrow-svg path {
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .ws-hero-carousel__pagination {
@@ -291,50 +322,42 @@ ws-hero-carousel {
     display: none;
   }
 
-  .ws-hero-carousel__frame {
-    grid-template-rows: auto auto;
-  }
-
   .ws-hero-carousel__media {
-    grid-row: 1;
     min-height: var(--ws-hero-carousel-height, 480px);
   }
 
+  .ws-hero-carousel__media-desktop {
+    display: none;
+  }
+
+  .ws-hero-carousel__media-mobile {
+    display: block;
+  }
+
   .ws-hero-carousel__overlay {
-    grid-row: 2;
-    position: relative;
     justify-content: flex-start;
-    align-items: flex-start;
-    padding: 20px var(--page-margin, 16px) 24px;
-    background: var(--color-background, #fff);
-    pointer-events: auto;
+    align-items: flex-end;
+    padding: 20px var(--page-margin, 16px) 36px;
+    pointer-events: none;
   }
 
   .ws-hero-carousel__content {
     text-align: start;
     align-items: flex-start;
+    padding:0;
   }
-
+  .ws-hero-carousel__title{
+    font-size: 24px;
+  }
   .ws-hero-carousel__content .ws-hero-carousel__actions {
     justify-content: flex-start;
   }
-
-  .ws-hero-carousel__title {
-    color: rgb(var(--color-foreground-rgb));
+  .ws-hero-carousel__button{
+    min-height: unset;
+    padding: 8px 16px;
   }
-
-  .ws-hero-carousel__button--outline {
-    color: rgb(var(--color-foreground-rgb));
-    border-color: rgb(var(--color-foreground-rgb) / 0.85);
-  }
-
-  .ws-hero-carousel__button--solid {
-    color: #fff;
-    background: rgb(var(--color-foreground-rgb));
-    border-color: rgb(var(--color-foreground-rgb));
-  }
-
   .ws-hero-carousel__arrow {
+    display: none;
     top: calc(var(--ws-hero-carousel-height, 480px) / 2);
   }
 

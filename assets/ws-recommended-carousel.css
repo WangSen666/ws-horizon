@@ -247,10 +247,6 @@ ws-recommended-carousel {
   object-fit: cover;
 }
 @media (max-width: 749px) {
-  .ws-recommended-carousel__inner {
-    padding-inline: var(--page-margin);
-  }
-
   .ws-recommended-carousel__layout {
     display: grid;
     grid-template-columns: 1fr;
