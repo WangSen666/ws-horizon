@@ -10,11 +10,6 @@ ws-recommended-carousel {
 .ws-recommended-carousel__inner {
   width: 100%;
 }
-@media (max-width: 1599px){
-  .ws-recommended-carousel__inner {
-    padding-inline:0 var(--page-margin);
-  }
-}
 .ws-recommended-carousel__layout {
   display: grid;
   grid-template-columns: 1fr;
@@ -250,4 +245,49 @@ ws-recommended-carousel {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+@media (max-width: 749px) {
+  .ws-recommended-carousel__inner {
+    padding-inline: var(--page-margin);
+  }
+
+  .ws-recommended-carousel__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    gap: 16px;
+  }
+
+  .ws-recommended-carousel__media-panel {
+    grid-row: 1;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .ws-recommended-carousel__content {
+    grid-row: 2;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .ws-recommended-carousel__content-panels,
+  .ws-recommended-carousel__content-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .ws-recommended-carousel__pagination {
+    display: none;
+  }
+
+  .ws-recommended-carousel__slide {
+    aspect-ratio: 1 / 1;
+  }
+  .ws-recommended-carousel__content-panel{
+    gap: 8px;
+  }
+  .ws-recommended-carousel__button{
+    padding: 8px 16px;
+    min-height:unset;
+  }
 }

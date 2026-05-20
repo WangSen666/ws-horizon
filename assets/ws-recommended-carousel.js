@@ -2,8 +2,8 @@ import { Component } from '@theme/component';
 import { prefersReducedMotion } from '@theme/utilities';
 
 /**
- * Recommended carousel: wheel anywhere in component switches slides;
- * left content panel and right media stay in sync.
+ * Recommended carousel: wheel / vertical swipe switches slides;
+ * horizontal track scroll also syncs active slide.
  *
  * @typedef {object} WsRecommendedCarouselRefs
  * @property {HTMLElement} track
@@ -26,12 +26,23 @@ export class WsRecommendedCarousel extends Component {
   /** @type {number} */
   #wheelCooldownMs = 500;
 
+  /** @type {number} */
+  #touchStartY = 0;
+
+  /** @type {number} */
+  #touchStartX = 0;
+
+  /** @type {number} */
+  #touchSwipeThreshold = 48;
+
   connectedCallback() {
     super.connectedCallback();
 
     const { track } = this.refs;
 
     this.addEventListener('wheel', this.#onWheel, { passive: false });
+    this.addEventListener('touchstart', this.#onTouchStart, { passive: true });
+    this.addEventListener('touchend', this.#onTouchEnd, { passive: true });
     track.addEventListener('scroll', this.#onScroll, { passive: true });
 
     this.refs.dots?.forEach((dot, index) => {
@@ -48,6 +59,8 @@ export class WsRecommendedCarousel extends Component {
 
   disconnectedCallback() {
     this.removeEventListener('wheel', this.#onWheel);
+    this.removeEventListener('touchstart', this.#onTouchStart);
+    this.removeEventListener('touchend', this.#onTouchEnd);
     this.refs.track?.removeEventListener('scroll', this.#onScroll);
     super.disconnectedCallback();
   }
@@ -58,17 +71,11 @@ export class WsRecommendedCarousel extends Component {
   #onWheel = (event) => {
     if (prefersReducedMotion()) return;
 
-    const { slides = [] } = this.refs;
-    if (slides.length <= 1) return;
-
     const { deltaY, deltaX } = event;
     if (Math.abs(deltaY) <= Math.abs(deltaX)) return;
 
     const direction = deltaY > 0 ? 1 : -1;
-    const atStart = this.#activeIndex === 0;
-    const atEnd = this.#activeIndex === slides.length - 1;
-
-    if ((direction > 0 && atEnd) || (direction < 0 && atStart)) return;
+    if (!this.#canChangeSlide(direction)) return;
 
     event.preventDefault();
 
@@ -76,9 +83,58 @@ export class WsRecommendedCarousel extends Component {
     if (now - this.#lastWheelAt < this.#wheelCooldownMs) return;
     this.#lastWheelAt = now;
 
-    const nextIndex = this.#activeIndex + direction;
-    this.#goToSlide(nextIndex);
+    this.#goToSlide(this.#activeIndex + direction);
   };
+
+  /**
+   * @param {TouchEvent} event
+   */
+  #onTouchStart = (event) => {
+    const touch = event.touches[0];
+    if (!touch) return;
+
+    this.#touchStartY = touch.clientY;
+    this.#touchStartX = touch.clientX;
+  };
+
+  /**
+   * @param {TouchEvent} event
+   */
+  #onTouchEnd = (event) => {
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+
+    const deltaY = this.#touchStartY - touch.clientY;
+    const deltaX = this.#touchStartX - touch.clientX;
+
+    if (Math.abs(deltaY) < this.#touchSwipeThreshold) return;
+    if (Math.abs(deltaY) <= Math.abs(deltaX)) return;
+
+    const direction = deltaY > 0 ? 1 : -1;
+    if (!this.#canChangeSlide(direction)) return;
+
+    const now = Date.now();
+    if (now - this.#lastWheelAt < this.#wheelCooldownMs) return;
+    this.#lastWheelAt = now;
+
+    this.#goToSlide(this.#activeIndex + direction);
+  };
+
+  /**
+   * @param {number} direction
+   * @returns {boolean}
+   */
+  #canChangeSlide(direction) {
+    const { slides = [] } = this.refs;
+    if (slides.length <= 1) return false;
+
+    const atStart = this.#activeIndex === 0;
+    const atEnd = this.#activeIndex === slides.length - 1;
+
+    if ((direction > 0 && atEnd) || (direction < 0 && atStart)) return false;
+
+    return true;
+  }
 
   #onScroll = () => {
     if (this.#isProgrammaticScroll) return;
