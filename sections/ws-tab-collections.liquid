@@ -1,0 +1,243 @@
+{% liquid
+  assign tab_count = section.blocks.size
+%}
+
+<style>
+  .ws-tab-collections-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top_pc }};
+    padding-bottom: {{ section.settings.padding_bottom_pc }};
+    margin-top: {{ section.settings.margin_top_pc }};
+    margin-bottom: {{ section.settings.margin_bottom_pc }};
+    --ws-tab-cols-pc: {{ section.settings.columns_pc }};
+    --ws-tab-cols-mobile: {{ section.settings.columns_mobile }};
+  }
+
+  @media (max-width: 749px) {
+    .ws-tab-collections-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top_mobile }};
+      padding-bottom: {{ section.settings.padding_bottom_mobile }};
+      margin-top: {{ section.settings.margin_top_mobile }};
+      margin-bottom: {{ section.settings.margin_bottom_mobile }};
+    }
+  }
+</style>
+
+<div
+  class="section section--full-width ws-tab-collections ws-tab-collections-{{ section.id }}"
+  {% if section.settings.section_id != blank %}
+    id="{{ section.settings.section_id | escape }}"
+  {% endif %}
+  {% if request.visual_preview_mode %}
+    data-shopify-visual-preview
+  {% endif %}
+>
+  <ws-tab-collections class="ws-tab-collections__shell">
+    <div class="ws-tab-collections__inner">
+      {% if section.settings.heading != blank %}
+        <h2 class="ws-tab-collections__heading">{{ section.settings.heading }}</h2>
+      {% endif %}
+
+      {% if tab_count > 0 %}
+        <div class="ws-tab-collections__tabs" role="tablist" aria-label="{{ section.settings.heading | default: 'Collections' }}">
+          {% for block in section.blocks %}
+            <button
+              type="button"
+              class="ws-tab-collections__tab{% if forloop.first %} is-active{% endif %}"
+              ref="tabButtons[]"
+              role="tab"
+              aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+              aria-controls="ws-tab-collections-panel-{{ section.id }}-{{ block.id }}"
+              id="ws-tab-collections-tab-{{ section.id }}-{{ block.id }}"
+              data-tab-index="{{ forloop.index0 }}"
+              {{ block.shopify_attributes }}
+            >
+              {{ block.settings.title | default: block.settings.collection.title | default: 'Tab' }}
+            </button>
+          {% endfor %}
+        </div>
+
+        {% for block in section.blocks %}
+          {% liquid
+            assign product_limit = block.settings.max_products
+            if product_limit == blank
+              assign product_limit = section.settings.products_per_tab
+            endif
+          %}
+          <div
+            class="ws-tab-collections__panel{% if forloop.first %} is-active{% endif %}"
+            ref="tabPanels[]"
+            role="tabpanel"
+            id="ws-tab-collections-panel-{{ section.id }}-{{ block.id }}"
+            aria-labelledby="ws-tab-collections-tab-{{ section.id }}-{{ block.id }}"
+            {% unless forloop.first %}
+              hidden
+            {% endunless %}
+          >
+            <div class="ws-tab-collections__grid">
+              {% if block.settings.collection != blank and block.settings.collection.products_count > 0 %}
+                {% for product in block.settings.collection.products limit: product_limit %}
+                  <div class="ws-tab-collections__item">
+                    {% # theme-check-disable UniqueStaticBlockId %}
+                      {% content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: product %}
+                    {% # theme-check-enable UniqueStaticBlockId %}
+                  </div>
+                {% endfor %}
+              {% else %}
+                {% for i in (1..product_limit) %}
+                  <div class="ws-tab-collections__item">
+                    {% # theme-check-disable UniqueStaticBlockId %}
+                      {% content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: null %}
+                    {% # theme-check-enable UniqueStaticBlockId %}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="ws-tab-collections__empty">Please add tab blocks.</div>
+      {% endif %}
+    </div>
+  </ws-tab-collections>
+</div>
+
+{{ 'ws-tab-collections.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'ws-tab-collections.js' | asset_url }}" type="module"></script>
+
+{% schema %}
+{
+  "name": "WS Tab Collections",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [
+    {
+      "type": "ws-tab-collection-tab",
+      "name": "Tab",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Tab title",
+          "default": "Best Sellers"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "range",
+          "id": "max_products",
+          "label": "Products count",
+          "min": 2,
+          "max": 12,
+          "step": 1,
+          "default": 6
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_id",
+      "label": "Section ID"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Trending This Season"
+    },
+    {
+      "type": "range",
+      "id": "products_per_tab",
+      "label": "Default products per tab",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "columns_pc",
+      "label": "Columns (PC)",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns (mobile)",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "text",
+      "id": "padding_top_pc",
+      "label": "PC padding top",
+      "default": "40px"
+    },
+    {
+      "type": "text",
+      "id": "padding_bottom_pc",
+      "label": "PC padding bottom",
+      "default": "40px"
+    },
+    {
+      "type": "text",
+      "id": "padding_top_mobile",
+      "label": "Mobile padding top",
+      "default": "24px"
+    },
+    {
+      "type": "text",
+      "id": "padding_bottom_mobile",
+      "label": "Mobile padding bottom",
+      "default": "24px"
+    },
+    {
+      "type": "text",
+      "id": "margin_top_pc",
+      "label": "PC margin top",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom_pc",
+      "label": "PC margin bottom",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_top_mobile",
+      "label": "Mobile margin top",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom_mobile",
+      "label": "Mobile margin bottom",
+      "default": "0"
+    }
+  ],
+  "presets": [
+    {
+      "name": "WS Tab Collections",
+      "category": "Custom Sections",
+      "blocks": [
+        { "type": "ws-tab-collection-tab", "settings": { "title": "Best Sellers" } },
+        { "type": "ws-tab-collection-tab", "settings": { "title": "Recommend" } },
+        { "type": "ws-tab-collection-tab", "settings": { "title": "New Arrivals" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
