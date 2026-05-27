@@ -1,3 +1,12 @@
+{% liquid
+  assign tab_count = 0
+  for block in section.blocks
+    if block.settings.block_type == 'tab'
+      assign tab_count = tab_count | plus: 1
+    endif
+  endfor
+%}
+
 <style>
   .ws-tab-collections-{{ section.id }} {
     padding-top: {{ section.settings.padding_top_pc }};
@@ -31,82 +40,64 @@
         <h2 class="ws-tab-collections__heading">{{ section.settings.heading }}</h2>
       {% endif %}
 
-      {% assign tab_button_index = 0 %}
-      <div class="ws-tab-collections__tabs" role="tablist" aria-label="{{ section.settings.heading | default: 'Collections' }}">
-        {% for block in section.blocks %}
-          {% if block.settings.block_type == 'tab' %}
-            <button
-              type="button"
-              class="ws-tab-collections__tab{% if tab_button_index == 0 %} is-active{% endif %}"
-              ref="tabButtons[]"
-              role="tab"
-              aria-selected="{% if tab_button_index == 0 %}true{% else %}false{% endif %}"
-              aria-controls="ws-tab-collections-panel-{{ section.id }}-{{ block.id }}"
-              id="ws-tab-collections-tab-{{ section.id }}-{{ block.id }}"
-              data-tab-index="{{ tab_button_index }}"
-              {{ block.shopify_attributes }}
-            >
-              {{ block.settings.tab_title | default: 'Tab' }}
-            </button>
-            {% assign tab_button_index = tab_button_index | plus: 1 %}
-          {% endif %}
-        {% endfor %}
-      </div>
-
-      {% liquid
-        assign tab_panel_index = 0
-        assign panel_open = false
-        assign view_more_link = ''
-        assign has_any_tab = false
-      %}
-
-      {% for block in section.blocks %}
-        {% if block.settings.block_type == 'tab' %}
-          {% assign has_any_tab = true %}
-
-          {% if panel_open %}
-            </div>
-            {% if view_more_link != blank %}
-              <div class="ws-tab-collections__footer">
-                <a class="ws-tab-collections__view-more" href="{{ view_more_link }}">
-                  {{ section.settings.view_more_label | default: 'VIEW MORE' }}
-                </a>
-              </div>
+      {% if tab_count > 0 %}
+        {% assign tab_button_index = 0 %}
+        <div class="ws-tab-collections__tabs" role="tablist" aria-label="{{ section.settings.heading | default: 'Collections' }}">
+          {% for block in section.blocks %}
+            {% if block.settings.block_type == 'tab' %}
+              {% assign tab_index = block.settings.tab_index | default: tab_button_index | plus: 0 %}
+              {% assign tab_title = block.settings.tab_title | default: 'Tab' %}
+              {% assign tab_button_index = tab_button_index | plus: 1 %}
+              <button
+                type="button"
+                class="ws-tab-collections__tab{% if tab_button_index == 1 %} is-active{% endif %}"
+                ref="tabButtons[]"
+                role="tab"
+                aria-selected="{% if tab_button_index == 1 %}true{% else %}false{% endif %}"
+                aria-controls="ws-tab-collections-panel-{{ section.id }}-{{ block.id }}"
+                id="ws-tab-collections-tab-{{ section.id }}-{{ block.id }}"
+                data-tab-index="{{ tab_button_index | minus: 1 }}"
+                {{ block.shopify_attributes }}
+              >
+                {{ tab_title }}
+              </button>
             {% endif %}
-          </div>
-          {% endif %}
+          {% endfor %}
+        </div>
 
-          {% liquid
-            assign view_more_link = block.settings.view_more_link
-            assign panel_open = true
-          %}
-          <div
-            class="ws-tab-collections__panel{% if tab_panel_index == 0 %} is-active{% endif %}"
-            ref="tabPanels[]"
-            role="tabpanel"
-            id="ws-tab-collections-panel-{{ section.id }}-{{ block.id }}"
-            aria-labelledby="ws-tab-collections-tab-{{ section.id }}-{{ block.id }}"
-            {% unless tab_panel_index == 0 %}
-              hidden
-            {% endunless %}
-          >
+        {% assign tab_panel_index = 0 %}
+        {% for tab_block in section.blocks %}
+          {% if tab_block.settings.block_type == 'tab' %}
+            {% assign tab_panel_index = tab_panel_index | plus: 1 %}
+            {% assign tab_key = tab_block.settings.tab_index | default: tab_panel_index | plus: 0 %}
+            <div
+              class="ws-tab-collections__panel{% if tab_panel_index == 1 %} is-active{% endif %}"
+              ref="tabPanels[]"
+              role="tabpanel"
+              id="ws-tab-collections-panel-{{ section.id }}-{{ tab_block.id }}"
+              aria-labelledby="ws-tab-collections-tab-{{ section.id }}-{{ tab_block.id }}"
+              {% unless tab_panel_index == 1 %}
+                hidden
+              {% endunless %}
+            >
             <div class="ws-tab-collections__groups">
-          {% assign tab_panel_index = tab_panel_index | plus: 1 %}
-
-        {% elsif block.settings.block_type == 'collection_group' and panel_open %}
-          {% liquid
-            assign product_limit = block.settings.max_products | default: section.settings.products_per_group
-            assign collection_obj = block.settings.collection
-            assign banner_link = block.settings.banner_link
-            if banner_link == blank and collection_obj != blank
-              assign banner_link = collection_obj.url
-            endif
-            assign product_count = 0
-            if collection_obj != blank
-              assign product_count = collection_obj.products_count
-            endif
-          %}
-          <div class="ws-tab-collections__group" {{ block.shopify_attributes }}>
+              {% assign has_group_for_tab = false %}
+              {% for block in section.blocks %}
+                {% if block.settings.block_type == 'collection_group' and block.settings.tab_index == tab_key %}
+                  {% assign has_group_for_tab = true %}
+                  {% liquid
+                    assign product_limit = block.settings.max_products | default: section.settings.products_per_group
+                    assign collection_obj = block.settings.collection
+                    assign banner_link = block.settings.banner_link
+                    if banner_link == blank and collection_obj != blank
+                      assign banner_link = collection_obj.url
+                    endif
+                    assign product_count = 0
+                    if collection_obj != blank
+                      assign product_count = collection_obj.products_count
+                    endif
+                  %}
+                  <div class="ws-tab-collections__group" {{ block.shopify_attributes }}>
             <a
               class="ws-tab-collections__banner"
               {% if banner_link != blank %}
@@ -207,25 +198,27 @@
                 {% endif %}
               </div>
             </div>
-          </div>
-        {% endif %}
-      {% endfor %}
+                  </div>
+                {% endif %}
+              {% endfor %}
 
-      {% if panel_open %}
+              {% unless has_group_for_tab %}
+                <p class="ws-tab-collections__empty">该 Tab 下还没有 Collection group。</p>
+              {% endunless %}
             </div>
-            {% if view_more_link != blank %}
+            {% if tab_block.settings.view_more_link != blank %}
               <div class="ws-tab-collections__footer">
-                <a class="ws-tab-collections__view-more" href="{{ view_more_link }}">
+                <a class="ws-tab-collections__view-more" href="{{ tab_block.settings.view_more_link }}">
                   {{ section.settings.view_more_label | default: 'VIEW MORE' }}
                 </a>
               </div>
             {% endif %}
           </div>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <p class="ws-tab-collections__empty">请先添加一个 Type=Tab 的 Item。</p>
       {% endif %}
-
-      {% unless has_any_tab %}
-        <p class="ws-tab-collections__empty">Add blocks: choose「Tab」to start a tab, then「Collection group」for each row.</p>
-      {% endunless %}
     </div>
   </ws-tab-collections>
 </div>
@@ -257,56 +250,56 @@
         },
         {
           "type": "header",
-          "content": "Tab settings",
-          "visible_if": "{{ block.settings.block_type == 'tab' }}"
+          "content": "Tab settings"
+        },
+        {
+          "type": "range",
+          "id": "tab_index",
+          "label": "Tab index (for grouping)",
+          "min": 1,
+          "max": 8,
+          "step": 1,
+          "default": 1
         },
         {
           "type": "text",
           "id": "tab_title",
           "label": "Tab title",
-          "default": "Best Sellers",
-          "visible_if": "{{ block.settings.block_type == 'tab' }}"
+          "default": "Best Sellers"
         },
         {
           "type": "url",
           "id": "view_more_link",
-          "label": "VIEW MORE link",
-          "visible_if": "{{ block.settings.block_type == 'tab' }}"
+          "label": "VIEW MORE link"
         },
         {
           "type": "header",
-          "content": "Collection group settings",
-          "visible_if": "{{ block.settings.block_type == 'collection_group' }}"
+          "content": "Collection group settings"
         },
         {
           "type": "paragraph",
-          "content": "Place collection group blocks directly under a Tab block.",
-          "visible_if": "{{ block.settings.block_type == 'collection_group' }}"
+          "content": "If Type=collection_group, set tab_index to which Tab it belongs."
         },
         {
           "type": "text",
           "id": "banner_title",
           "label": "Banner title",
-          "default": "Handpicked For You",
-          "visible_if": "{{ block.settings.block_type == 'collection_group' }}"
+          "default": "Handpicked For You"
         },
         {
           "type": "image_picker",
           "id": "banner_image",
-          "label": "Banner image",
-          "visible_if": "{{ block.settings.block_type == 'collection_group' }}"
+          "label": "Banner image"
         },
         {
           "type": "url",
           "id": "banner_link",
-          "label": "Banner link",
-          "visible_if": "{{ block.settings.block_type == 'collection_group' }}"
+          "label": "Banner link"
         },
         {
           "type": "collection",
           "id": "collection",
-          "label": "Collection",
-          "visible_if": "{{ block.settings.block_type == 'collection_group' }}"
+          "label": "Collection"
         },
         {
           "type": "range",
@@ -315,8 +308,7 @@
           "min": 2,
           "max": 12,
           "step": 1,
-          "default": 6,
-          "visible_if": "{{ block.settings.block_type == 'collection_group' }}"
+          "default": 6
         }
       ]
     }
@@ -403,12 +395,12 @@
       "category": "Custom Sections",
       "blocks": [
         { "type": "item", "settings": { "block_type": "tab", "tab_title": "Best Sellers" } },
-        { "type": "item", "settings": { "block_type": "collection_group", "banner_title": "Handpicked For You" } },
-        { "type": "item", "settings": { "block_type": "collection_group", "banner_title": "Ocean New Drops" } },
-        { "type": "item", "settings": { "block_type": "tab", "tab_title": "Recommend" } },
-        { "type": "item", "settings": { "block_type": "collection_group", "banner_title": "Recommended For You" } },
-        { "type": "item", "settings": { "block_type": "tab", "tab_title": "New Arrivals" } },
-        { "type": "item", "settings": { "block_type": "collection_group", "banner_title": "New Drops every 15th" } }
+        { "type": "item", "settings": { "block_type": "collection_group", "tab_index": 1, "banner_title": "Handpicked For You" } },
+        { "type": "item", "settings": { "block_type": "collection_group", "tab_index": 1, "banner_title": "Ocean New Drops" } },
+        { "type": "item", "settings": { "block_type": "tab", "tab_index": 2, "tab_title": "Recommend" } },
+        { "type": "item", "settings": { "block_type": "collection_group", "tab_index": 2, "banner_title": "Recommended For You" } },
+        { "type": "item", "settings": { "block_type": "tab", "tab_index": 3, "tab_title": "New Arrivals" } },
+        { "type": "item", "settings": { "block_type": "collection_group", "tab_index": 3, "banner_title": "New Drops every 15th" } }
       ]
     }
   ]
