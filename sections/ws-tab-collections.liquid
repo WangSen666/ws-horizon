@@ -73,17 +73,53 @@
               {% if block.settings.collection != blank and block.settings.collection.products_count > 0 %}
                 {% for product in block.settings.collection.products limit: product_limit %}
                   <div class="ws-tab-collections__item">
-                    {% # theme-check-disable UniqueStaticBlockId %}
-                      {% content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: product %}
-                    {% # theme-check-enable UniqueStaticBlockId %}
+                    <article class="ws-tab-collections__card">
+                      <a class="ws-tab-collections__card-media" href="{{ product.url }}">
+                        {% if product.featured_media %}
+                          {{
+                            product.featured_media
+                            | image_url: width: 800
+                            | image_tag:
+                              loading: 'lazy',
+                              widths: '200, 300, 400, 500, 600, 800',
+                              sizes: '(min-width: 750px) 16vw, 45vw',
+                              class: 'ws-tab-collections__card-image',
+                              alt: product.featured_media.alt
+                          }}
+                        {% else %}
+                          <div class="ws-tab-collections__card-image ws-tab-collections__card-image--placeholder">
+                            {{ 'product-apparel-1' | placeholder_svg_tag: 'placeholder' }}
+                          </div>
+                        {% endif %}
+                      </a>
+                      <div class="ws-tab-collections__card-body">
+                        <a class="ws-tab-collections__card-title" href="{{ product.url }}">{{ product.title }}</a>
+                        <div class="ws-tab-collections__card-price">
+                          {% render 'price', product_resource: product %}
+                        </div>
+                        <a class="ws-tab-collections__quick-buy" href="{{ product.url }}">
+                          {{ 'actions.add' | t }}
+                        </a>
+                      </div>
+                    </article>
                   </div>
                 {% endfor %}
               {% else %}
                 {% for i in (1..product_limit) %}
                   <div class="ws-tab-collections__item">
-                    {% # theme-check-disable UniqueStaticBlockId %}
-                      {% content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: null %}
-                    {% # theme-check-enable UniqueStaticBlockId %}
+                    <article class="ws-tab-collections__card ws-tab-collections__card--placeholder">
+                      <div class="ws-tab-collections__card-media">
+                        <div class="ws-tab-collections__card-image ws-tab-collections__card-image--placeholder">
+                          {{ 'product-apparel-1' | placeholder_svg_tag: 'placeholder' }}
+                        </div>
+                      </div>
+                      <div class="ws-tab-collections__card-body">
+                        <p class="ws-tab-collections__card-title">{{ 'content.product_card_placeholder' | t }}</p>
+                        <div class="ws-tab-collections__card-price">
+                          {% render 'price', product_resource: null %}
+                        </div>
+                      </div>
+                    </article>
                   </div>
                 {% endfor %}
               {% endif %}
