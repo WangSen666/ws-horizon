@@ -33,6 +33,7 @@
     "new_window": "在新窗口中打开。",
     "slideshow_next": "下一张幻灯片",
     "slideshow_previous": "上一张幻灯片",
+    "add_to_wishlist": "加入心愿单",
     "close_dialog": "关闭对话框",
     "reset_search": "重置搜索",
     "search_results_count": "找到“{{ query }}”的 {{ count }} 条搜索结果",
