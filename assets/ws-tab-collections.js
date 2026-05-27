@@ -7,7 +7,7 @@ import { Component } from '@theme/component';
  * @property {HTMLButtonElement[]} tabButtons
  * @property {HTMLElement[]} tabPanels
  * @property {HTMLElement[]} tracks
- * @property {HTMLAnchorElement[]} viewMoreLinks
+ * @property {HTMLAnchorElement} viewMoreLink
  * @property {HTMLButtonElement[]} previousButtons
  * @property {HTMLButtonElement[]} nextButtons
  */
@@ -51,7 +51,7 @@ export class WsTabCollections extends Component {
    * @param {boolean} [animate=true]
    */
   #setActiveTab(index, animate = true) {
-    const { tabButtons = [], tabPanels = [], viewMoreLinks = [] } = this.refs;
+    const { tabButtons = [], tabPanels = [], viewMoreLink } = this.refs;
     if (!tabPanels.length) return;
 
     this.#activeIndex = index;
@@ -68,11 +68,17 @@ export class WsTabCollections extends Component {
       panel.setAttribute('aria-hidden', isActive ? 'false' : 'true');
     });
 
-    viewMoreLinks.forEach((link, linkIndex) => {
-      const isActive = linkIndex === index;
-      link.hidden = linkIndex !== index;
-      link.classList.toggle('is-active', isActive);
-    });
+    const activeButton = tabButtons[index];
+    const viewMoreUrl = activeButton?.dataset.viewMoreUrl;
+
+    if (viewMoreLink instanceof HTMLAnchorElement) {
+      if (viewMoreUrl) {
+        viewMoreLink.href = viewMoreUrl;
+        viewMoreLink.hidden = false;
+      } else {
+        viewMoreLink.hidden = true;
+      }
+    }
 
     if (animate) {
       const track = this.refs.tracks?.[index];
