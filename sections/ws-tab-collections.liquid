@@ -274,8 +274,6 @@
               </div>
             {% endfor %}
           </div>
-        {% else %}
-          <p class="ws-tab-collections__empty">{{ 'sections.collection_list.no_collections' | t | default: 'Add a tab to get started.' }}</p>
         {% endif %}
       </div>
     </div>
@@ -349,8 +347,7 @@
     {
       "type": "text",
       "id": "section_id",
-      "label": "Section ID",
-      "info": "Example: TabCollections--template--22258844958968__section_tab_collections_apDiUV"
+      "label": "Section ID"
     },
     {
       "type": "text",
