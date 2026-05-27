@@ -4,8 +4,6 @@
     padding-bottom: {{ section.settings.padding_bottom_pc }};
     margin-top: {{ section.settings.margin_top_pc }};
     margin-bottom: {{ section.settings.margin_bottom_pc }};
-    --ws-tab-cols-pc: {{ section.settings.columns_pc }};
-    --ws-tab-cols-mobile: {{ section.settings.columns_mobile }};
   }
 
   @media (max-width: 749px) {
@@ -33,82 +31,167 @@
         <h2 class="ws-tab-collections__heading">{{ section.settings.heading }}</h2>
       {% endif %}
 
-      {% if section.blocks.size > 0 %}
-        <div class="ws-tab-collections__tabs" role="tablist" aria-label="{{ section.settings.heading | default: 'Collections' }}">
-          {% for block in section.blocks %}
+      {% assign tab_button_index = 0 %}
+      <div class="ws-tab-collections__tabs" role="tablist" aria-label="{{ section.settings.heading | default: 'Collections' }}">
+        {% for block in section.blocks %}
+          {% if block.settings.block_type == 'tab' %}
             <button
               type="button"
-              class="ws-tab-collections__tab{% if forloop.first %} is-active{% endif %}"
+              class="ws-tab-collections__tab{% if tab_button_index == 0 %} is-active{% endif %}"
               ref="tabButtons[]"
               role="tab"
-              aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+              aria-selected="{% if tab_button_index == 0 %}true{% else %}false{% endif %}"
               aria-controls="ws-tab-collections-panel-{{ section.id }}-{{ block.id }}"
               id="ws-tab-collections-tab-{{ section.id }}-{{ block.id }}"
-              data-tab-index="{{ forloop.index0 }}"
+              data-tab-index="{{ tab_button_index }}"
               {{ block.shopify_attributes }}
             >
-              {{ block.settings.title | default: block.settings.collection.title | default: 'Tab' }}
+              {{ block.settings.tab_title | default: 'Tab' }}
             </button>
-          {% endfor %}
-        </div>
+            {% assign tab_button_index = tab_button_index | plus: 1 %}
+          {% endif %}
+        {% endfor %}
+      </div>
 
-        {% for block in section.blocks %}
+      {% liquid
+        assign tab_panel_index = 0
+        assign panel_open = false
+        assign view_more_link = ''
+        assign has_any_tab = false
+      %}
+
+      {% for block in section.blocks %}
+        {% if block.settings.block_type == 'tab' %}
+          {% assign has_any_tab = true %}
+
+          {% if panel_open %}
+            </div>
+            {% if view_more_link != blank %}
+              <div class="ws-tab-collections__footer">
+                <a class="ws-tab-collections__view-more" href="{{ view_more_link }}">
+                  {{ section.settings.view_more_label | default: 'VIEW MORE' }}
+                </a>
+              </div>
+            {% endif %}
+          </div>
+          {% endif %}
+
           {% liquid
-            assign product_limit = block.settings.max_products
-            if product_limit == blank
-              assign product_limit = section.settings.products_per_tab
-            endif
+            assign view_more_link = block.settings.view_more_link
+            assign panel_open = true
           %}
           <div
-            class="ws-tab-collections__panel{% if forloop.first %} is-active{% endif %}"
+            class="ws-tab-collections__panel{% if tab_panel_index == 0 %} is-active{% endif %}"
             ref="tabPanels[]"
             role="tabpanel"
             id="ws-tab-collections-panel-{{ section.id }}-{{ block.id }}"
             aria-labelledby="ws-tab-collections-tab-{{ section.id }}-{{ block.id }}"
-            {% unless forloop.first %}
+            {% unless tab_panel_index == 0 %}
               hidden
             {% endunless %}
           >
-            <div class="ws-tab-collections__grid">
-              {% if block.settings.collection != blank and block.settings.collection.products_count > 0 %}
-                {% for product in block.settings.collection.products limit: product_limit %}
-                  <div class="ws-tab-collections__item">
+            <div class="ws-tab-collections__groups">
+          {% assign tab_panel_index = tab_panel_index | plus: 1 %}
+
+        {% elsif block.settings.block_type == 'collection_group' and panel_open %}
+          {% liquid
+            assign product_limit = block.settings.max_products | default: section.settings.products_per_group
+            assign collection_obj = block.settings.collection
+            assign banner_link = block.settings.banner_link
+            if banner_link == blank and collection_obj != blank
+              assign banner_link = collection_obj.url
+            endif
+            assign product_count = 0
+            if collection_obj != blank
+              assign product_count = collection_obj.products_count
+            endif
+          %}
+          <div class="ws-tab-collections__group" {{ block.shopify_attributes }}>
+            <a
+              class="ws-tab-collections__banner"
+              {% if banner_link != blank %}
+                href="{{ banner_link }}"
+              {% else %}
+                role="link"
+                aria-disabled="true"
+              {% endif %}
+            >
+              {% if block.settings.banner_image != blank %}
+                {{
+                  block.settings.banner_image
+                  | image_url: width: 800
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '300, 400, 500, 600, 800',
+                    sizes: '(min-width: 750px) 280px, 45vw',
+                    class: 'ws-tab-collections__banner-image',
+                    alt: block.settings.banner_image.alt
+                }}
+              {% elsif collection_obj != blank and collection_obj.image %}
+                {{
+                  collection_obj.image
+                  | image_url: width: 800
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '300, 400, 500, 600, 800',
+                    sizes: '(min-width: 750px) 280px, 45vw',
+                    class: 'ws-tab-collections__banner-image',
+                    alt: collection_obj.image.alt
+                }}
+              {% else %}
+                <div class="ws-tab-collections__banner-image ws-tab-collections__banner-image--placeholder">
+                  {{ 'collection-apparel-1' | placeholder_svg_tag: 'placeholder' }}
+                </div>
+              {% endif %}
+              <div class="ws-tab-collections__banner-overlay">
+                {% if product_count > 0 %}
+                  <p class="ws-tab-collections__banner-count">{{ product_count }} products</p>
+                {% endif %}
+                <p class="ws-tab-collections__banner-title">
+                  {{ block.settings.banner_title | default: collection_obj.title | default: 'Collection' }}
+                  <span aria-hidden="true">&gt;&gt;</span>
+                </p>
+              </div>
+            </a>
+
+            <div class="ws-tab-collections__track-wrap">
+              <div class="ws-tab-collections__track">
+                {% if collection_obj != blank and collection_obj.products_count > 0 %}
+                  {% for product in collection_obj.products limit: product_limit %}
                     <article class="ws-tab-collections__card">
-                      <a class="ws-tab-collections__card-media" href="{{ product.url }}">
-                        {% if product.featured_media %}
-                          {{
-                            product.featured_media
-                            | image_url: width: 800
-                            | image_tag:
-                              loading: 'lazy',
-                              widths: '200, 300, 400, 500, 600, 800',
-                              sizes: '(min-width: 750px) 16vw, 45vw',
-                              class: 'ws-tab-collections__card-image',
-                              alt: product.featured_media.alt
-                          }}
-                        {% else %}
-                          <div class="ws-tab-collections__card-image ws-tab-collections__card-image--placeholder">
-                            {{ 'product-apparel-1' | placeholder_svg_tag: 'placeholder' }}
-                          </div>
-                        {% endif %}
-                      </a>
+                      <div class="ws-tab-collections__card-media-wrap">
+                        <a class="ws-tab-collections__card-media" href="{{ product.url }}">
+                          {% if product.featured_media %}
+                            {{
+                              product.featured_media
+                              | image_url: width: 600
+                              | image_tag:
+                                loading: 'lazy',
+                                widths: '200, 300, 400, 500, 600',
+                                sizes: '220px',
+                                class: 'ws-tab-collections__card-image',
+                                alt: product.featured_media.alt
+                            }}
+                          {% else %}
+                            <div class="ws-tab-collections__card-image ws-tab-collections__card-image--placeholder">
+                              {{ 'product-apparel-1' | placeholder_svg_tag: 'placeholder' }}
+                            </div>
+                          {% endif %}
+                        </a>
+                        <a class="ws-tab-collections__quick-buy" href="{{ product.url }}">Quick Buy</a>
+                      </div>
                       <div class="ws-tab-collections__card-body">
                         <a class="ws-tab-collections__card-title" href="{{ product.url }}">{{ product.title }}</a>
                         <div class="ws-tab-collections__card-price">
                           {% render 'price', product_resource: product %}
                         </div>
-                        <a class="ws-tab-collections__quick-buy" href="{{ product.url }}">
-                          {{ 'actions.add' | t }}
-                        </a>
                       </div>
                     </article>
-                  </div>
-                {% endfor %}
-              {% else %}
-                {% for i in (1..product_limit) %}
-                  <div class="ws-tab-collections__item">
+                  {% endfor %}
+                {% else %}
+                  {% for i in (1..product_limit) %}
                     <article class="ws-tab-collections__card ws-tab-collections__card--placeholder">
-                      <div class="ws-tab-collections__card-media">
+                      <div class="ws-tab-collections__card-media-wrap">
                         <div class="ws-tab-collections__card-image ws-tab-collections__card-image--placeholder">
                           {{ 'product-apparel-1' | placeholder_svg_tag: 'placeholder' }}
                         </div>
@@ -120,15 +203,29 @@
                         </div>
                       </div>
                     </article>
-                  </div>
-                {% endfor %}
-              {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </div>
             </div>
           </div>
-        {% endfor %}
-      {% else %}
-        <div class="ws-tab-collections__empty">Please add tab blocks.</div>
+        {% endif %}
+      {% endfor %}
+
+      {% if panel_open %}
+            </div>
+            {% if view_more_link != blank %}
+              <div class="ws-tab-collections__footer">
+                <a class="ws-tab-collections__view-more" href="{{ view_more_link }}">
+                  {{ section.settings.view_more_label | default: 'VIEW MORE' }}
+                </a>
+              </div>
+            {% endif %}
+          </div>
       {% endif %}
+
+      {% unless has_any_tab %}
+        <p class="ws-tab-collections__empty">Add blocks: choose「Tab」to start a tab, then「Collection group」for each row.</p>
+      {% endunless %}
     </div>
   </ws-tab-collections>
 </div>
@@ -145,28 +242,81 @@
   },
   "blocks": [
     {
-      "type": "collection_tab",
-      "name": "Tab",
+      "type": "item",
+      "name": "Item",
       "settings": [
         {
+          "type": "select",
+          "id": "block_type",
+          "label": "Type",
+          "options": [
+            { "value": "tab", "label": "Tab" },
+            { "value": "collection_group", "label": "Collection group" }
+          ],
+          "default": "tab"
+        },
+        {
+          "type": "header",
+          "content": "Tab settings",
+          "visible_if": "{{ block.settings.block_type == 'tab' }}"
+        },
+        {
           "type": "text",
-          "id": "title",
+          "id": "tab_title",
           "label": "Tab title",
-          "default": "Best Sellers"
+          "default": "Best Sellers",
+          "visible_if": "{{ block.settings.block_type == 'tab' }}"
+        },
+        {
+          "type": "url",
+          "id": "view_more_link",
+          "label": "VIEW MORE link",
+          "visible_if": "{{ block.settings.block_type == 'tab' }}"
+        },
+        {
+          "type": "header",
+          "content": "Collection group settings",
+          "visible_if": "{{ block.settings.block_type == 'collection_group' }}"
+        },
+        {
+          "type": "paragraph",
+          "content": "Place collection group blocks directly under a Tab block.",
+          "visible_if": "{{ block.settings.block_type == 'collection_group' }}"
+        },
+        {
+          "type": "text",
+          "id": "banner_title",
+          "label": "Banner title",
+          "default": "Handpicked For You",
+          "visible_if": "{{ block.settings.block_type == 'collection_group' }}"
+        },
+        {
+          "type": "image_picker",
+          "id": "banner_image",
+          "label": "Banner image",
+          "visible_if": "{{ block.settings.block_type == 'collection_group' }}"
+        },
+        {
+          "type": "url",
+          "id": "banner_link",
+          "label": "Banner link",
+          "visible_if": "{{ block.settings.block_type == 'collection_group' }}"
         },
         {
           "type": "collection",
           "id": "collection",
-          "label": "Collection"
+          "label": "Collection",
+          "visible_if": "{{ block.settings.block_type == 'collection_group' }}"
         },
         {
           "type": "range",
           "id": "max_products",
-          "label": "Products count",
+          "label": "Products in row",
           "min": 2,
           "max": 12,
           "step": 1,
-          "default": 6
+          "default": 6,
+          "visible_if": "{{ block.settings.block_type == 'collection_group' }}"
         }
       ]
     }
@@ -184,32 +334,19 @@
       "default": "Trending This Season"
     },
     {
+      "type": "text",
+      "id": "view_more_label",
+      "label": "VIEW MORE label",
+      "default": "VIEW MORE"
+    },
+    {
       "type": "range",
-      "id": "products_per_tab",
-      "label": "Default products per tab",
+      "id": "products_per_group",
+      "label": "Default products per group",
       "min": 2,
       "max": 12,
       "step": 1,
       "default": 6
-    },
-    {
-      "type": "range",
-      "id": "columns_pc",
-      "label": "Columns (PC)",
-      "min": 2,
-      "max": 6,
-      "step": 1,
-      "default": 6
-    },
-    {
-      "type": "select",
-      "id": "columns_mobile",
-      "label": "Columns (mobile)",
-      "options": [
-        { "value": "1", "label": "1" },
-        { "value": "2", "label": "2" }
-      ],
-      "default": "2"
     },
     {
       "type": "text",
@@ -265,9 +402,13 @@
       "name": "Tab Collections",
       "category": "Custom Sections",
       "blocks": [
-        { "type": "collection_tab", "settings": { "title": "Best Sellers" } },
-        { "type": "collection_tab", "settings": { "title": "Recommend" } },
-        { "type": "collection_tab", "settings": { "title": "New Arrivals" } }
+        { "type": "item", "settings": { "block_type": "tab", "tab_title": "Best Sellers" } },
+        { "type": "item", "settings": { "block_type": "collection_group", "banner_title": "Handpicked For You" } },
+        { "type": "item", "settings": { "block_type": "collection_group", "banner_title": "Ocean New Drops" } },
+        { "type": "item", "settings": { "block_type": "tab", "tab_title": "Recommend" } },
+        { "type": "item", "settings": { "block_type": "collection_group", "banner_title": "Recommended For You" } },
+        { "type": "item", "settings": { "block_type": "tab", "tab_title": "New Arrivals" } },
+        { "type": "item", "settings": { "block_type": "collection_group", "banner_title": "New Drops every 15th" } }
       ]
     }
   ]
