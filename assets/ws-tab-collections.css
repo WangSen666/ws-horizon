@@ -16,7 +16,7 @@ ws-tab-collections {
 
 .ws-tab-collections__heading {
   margin: 0;
-  text-align: center;
+  text-align: start;
   font-size: clamp(24px, 3.2vw, 34px);
   font-weight: 700;
   line-height: 1.15;
@@ -26,7 +26,7 @@ ws-tab-collections {
 .ws-tab-collections__tabs {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
   gap: 8px 20px;
   margin-top: 20px;
@@ -68,6 +68,12 @@ ws-tab-collections {
 
 .ws-tab-collections__panel {
   display: block;
+}
+
+.ws-tab-collections__panel-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
 }
 
 .ws-tab-collections__groups {
@@ -243,12 +249,6 @@ ws-tab-collections {
   font-size: 13px;
 }
 
-.ws-tab-collections__footer {
-  display: flex;
-  justify-content: center;
-  margin-top: 28px;
-}
-
 .ws-tab-collections__view-more {
   display: inline-flex;
   align-items: center;
@@ -298,6 +298,11 @@ ws-tab-collections {
 
   .ws-tab-collections__group {
     grid-template-columns: 1fr;
+  }
+
+  .ws-tab-collections__panel-action {
+    justify-content: flex-start;
+    margin-bottom: 10px;
   }
 
   .ws-tab-collections__banner-image,

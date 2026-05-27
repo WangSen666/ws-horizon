@@ -45,7 +45,6 @@
         <div class="ws-tab-collections__tabs" role="tablist" aria-label="{{ section.settings.heading | default: 'Collections' }}">
           {% for block in section.blocks %}
             {% if block.settings.block_type == 'tab' %}
-              {% assign tab_index = block.settings.tab_index | default: tab_button_index | plus: 0 %}
               {% assign tab_title = block.settings.tab_title | default: 'Tab' %}
               {% assign tab_button_index = tab_button_index | plus: 1 %}
               <button
@@ -80,6 +79,13 @@
                 hidden
               {% endunless %}
             >
+            {% if tab_block.settings.view_more_link != blank %}
+              <div class="ws-tab-collections__panel-action">
+                <a class="ws-tab-collections__view-more" href="{{ tab_block.settings.view_more_link }}">
+                  {{ section.settings.view_more_label | default: 'VIEW MORE' }}
+                </a>
+              </div>
+            {% endif %}
             <div class="ws-tab-collections__groups">
               {% assign has_group_for_tab = false %}
               {% for block in section.blocks %}
@@ -206,13 +212,6 @@
                 <p class="ws-tab-collections__empty">该 Tab 下还没有 Collection group。</p>
               {% endunless %}
             </div>
-            {% if tab_block.settings.view_more_link != blank %}
-              <div class="ws-tab-collections__footer">
-                <a class="ws-tab-collections__view-more" href="{{ tab_block.settings.view_more_link }}">
-                  {{ section.settings.view_more_label | default: 'VIEW MORE' }}
-                </a>
-              </div>
-            {% endif %}
           </div>
           {% endif %}
         {% endfor %}
