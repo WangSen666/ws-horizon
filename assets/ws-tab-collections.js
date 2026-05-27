@@ -1,12 +1,20 @@
 import { Component } from '@theme/component';
 
 /**
+ * Tabbed collection carousel: tabs switch panels; each panel has a horizontal product track.
+ *
  * @typedef {object} WsTabCollectionsRefs
  * @property {HTMLButtonElement[]} tabButtons
  * @property {HTMLElement[]} tabPanels
+ * @property {HTMLElement[]} tracks
  * @property {HTMLAnchorElement[]} viewMoreLinks
+ * @property {HTMLButtonElement[]} previousButtons
+ * @property {HTMLButtonElement[]} nextButtons
  */
 export class WsTabCollections extends Component {
+  /** @type {number} */
+  #activeIndex = 0;
+
   connectedCallback() {
     super.connectedCallback();
 
@@ -16,14 +24,37 @@ export class WsTabCollections extends Component {
         this.#setActiveTab(index);
       });
     });
+
+    this.refs.previousButtons?.forEach((button, index) => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        this.#scrollTrack(index, -1);
+      });
+    });
+
+    this.refs.nextButtons?.forEach((button, index) => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        this.#scrollTrack(index, 1);
+      });
+    });
+
+    this.#setActiveTab(this.#activeIndex, false);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
   }
 
   /**
    * @param {number} index
+   * @param {boolean} [animate=true]
    */
-  #setActiveTab(index) {
+  #setActiveTab(index, animate = true) {
     const { tabButtons = [], tabPanels = [], viewMoreLinks = [] } = this.refs;
-    if (!tabButtons[index] || !tabPanels[index]) return;
+    if (!tabPanels.length) return;
+
+    this.#activeIndex = index;
 
     tabButtons.forEach((button, buttonIndex) => {
       const isActive = buttonIndex === index;
@@ -39,6 +70,32 @@ export class WsTabCollections extends Component {
 
     viewMoreLinks.forEach((link, linkIndex) => {
       link.hidden = linkIndex !== index;
+      link.classList.toggle('is-active', linkIndex === index);
+    });
+
+    if (animate) {
+      const track = this.refs.tracks?.[index];
+      track?.scrollTo({ left: 0, behavior: 'smooth' });
+    }
+  }
+
+  /**
+   * @param {number} panelIndex
+   * @param {number} direction
+   */
+  #scrollTrack(panelIndex, direction) {
+    const track = this.refs.tracks?.[panelIndex];
+    if (!track) return;
+
+    const firstSlide = track.querySelector('.ws-tab-collections__slide');
+    if (!firstSlide) return;
+
+    const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || '0') || 0;
+    const scrollAmount = firstSlide.getBoundingClientRect().width + gap;
+
+    track.scrollBy({
+      left: direction * scrollAmount,
+      behavior: 'smooth',
     });
   }
 }

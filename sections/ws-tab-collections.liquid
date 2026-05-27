@@ -1,10 +1,20 @@
+{% liquid
+  assign content_max_width = section.settings.content_max_width | default: 'unset'
+  assign new_badge_tag = section.settings.new_badge_tag | downcase | default: 'new'
+%}
+
 <style>
   .ws-tab-collections-{{ section.id }} {
-    --ws-tab-collections-bg: {{ section.settings.background_color }};
+    --ws-tab-collections-accent: {{ section.settings.accent_color }};
+    background-color: {{ section.settings.background_color }};
     padding-top: {{ section.settings.padding_top_pc }};
     padding-bottom: {{ section.settings.padding_bottom_pc }};
     margin-top: {{ section.settings.margin_top_pc }};
     margin-bottom: {{ section.settings.margin_bottom_pc }};
+  }
+
+  .ws-tab-collections-{{ section.id }} .ws-tab-collections__inner {
+    max-width: {{ content_max_width }};
   }
 
   @media (max-width: 749px) {
@@ -30,14 +40,18 @@
     <div class="ws-tab-collections__inner">
       <div class="ws-tab-collections__layout">
         {% if section.settings.heading != blank %}
-          <div class="ws-tab-collections__header">
+          <header class="ws-tab-collections__header">
             <h2 class="ws-tab-collections__heading">{{ section.settings.heading }}</h2>
-          </div>
+          </header>
         {% endif %}
 
         {% if section.blocks.size > 0 %}
           <div class="ws-tab-collections__toolbar">
-            <div class="ws-tab-collections__tabs" role="tablist" aria-label="{{ section.settings.heading | default: 'Collections' }}">
+            <div
+              class="ws-tab-collections__tabs"
+              role="tablist"
+              aria-label="{{ section.settings.heading | default: 'Collections' | escape }}"
+            >
               {% for block in section.blocks %}
                 <button
                   type="button"
@@ -56,11 +70,17 @@
 
             <div class="ws-tab-collections__view-more-wrap">
               {% for block in section.blocks %}
-                {% if block.settings.view_more_link != blank %}
+                {% liquid
+                  assign view_more_href = block.settings.view_more_link
+                  if view_more_href == blank and block.settings.collection != blank
+                    assign view_more_href = block.settings.collection.url
+                  endif
+                %}
+                {% if view_more_href != blank %}
                   <a
                     class="ws-tab-collections__view-more{% if forloop.first %} is-active{% endif %}"
                     ref="viewMoreLinks[]"
-                    href="{{ block.settings.view_more_link }}"
+                    href="{{ view_more_href }}"
                     {% unless forloop.first %}
                       hidden
                     {% endunless %}
@@ -99,6 +119,17 @@
               >
                 <div class="ws-tab-collections__group">
                   <div class="ws-tab-collections__track-wrap">
+                    <button
+                      type="button"
+                      class="ws-tab-collections__arrow ws-tab-collections__arrow--prev"
+                      ref="previousButtons[]"
+                      aria-label="{{ 'accessibility.slideshow_previous' | t }}"
+                    >
+                      <svg class="ws-tab-collections__arrow-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M14.5 6.5L9 12L14.5 17.5" />
+                      </svg>
+                    </button>
+
                     <div class="ws-tab-collections__track" ref="tracks[]">
                       <article class="ws-tab-collections__slide ws-tab-collections__slide--featured">
                         <a
@@ -117,7 +148,7 @@
                               | image_tag:
                                 loading: 'lazy',
                                 widths: '360, 540, 720, 960, 1200',
-                                sizes: '(min-width: 1024px) 33vw, 100vw',
+                                sizes: '(min-width: 1024px) 33vw, 78vw',
                                 class: 'ws-tab-collections__featured-image',
                                 alt: block.settings.banner_image.alt
                             }}
@@ -128,13 +159,14 @@
                               | image_tag:
                                 loading: 'lazy',
                                 widths: '360, 540, 720, 960, 1200',
-                                sizes: '(min-width: 1024px) 33vw, 100vw',
+                                sizes: '(min-width: 1024px) 33vw, 78vw',
                                 class: 'ws-tab-collections__featured-image',
                                 alt: collection_obj.image.alt
                             }}
                           {% else %}
                             <div class="ws-tab-collections__featured-image ws-tab-collections__featured-image--empty"></div>
                           {% endif %}
+
                           <div class="ws-tab-collections__featured-content">
                             {% if product_count > 0 %}
                               <p class="ws-tab-collections__featured-count">{{ product_count }} products</p>
@@ -148,7 +180,19 @@
 
                       {% if collection_obj != blank and collection_obj.products_count > 0 %}
                         {% for product in collection_obj.products limit: product_limit %}
-                          {% assign hover_media = product.media[1] %}
+                          {% liquid
+                            assign hover_media = product.media[1]
+                            assign show_new_badge = false
+                            if section.settings.show_new_badge
+                              for tag in product.tags
+                                assign tag_downcase = tag | downcase
+                                if tag_downcase == new_badge_tag
+                                  assign show_new_badge = true
+                                  break
+                                endif
+                              endfor
+                            endif
+                          %}
                           <article class="ws-tab-collections__slide ws-tab-collections__slide--product">
                             <div class="ws-tab-collections__card">
                               <div class="ws-tab-collections__card-media-wrap">
@@ -176,10 +220,33 @@
                                           alt: hover_media.alt
                                       }}
                                     {% endif %}
+                                  {% else %}
+                                    <div class="ws-tab-collections__card-image ws-tab-collections__featured-image--empty"></div>
                                   {% endif %}
                                 </a>
-                                <a class="ws-tab-collections__quick-buy" href="{{ product.url }}">Quick Buy</a>
+
+                                {% if show_new_badge %}
+                                  <span class="ws-tab-collections__card-badge">{{ section.settings.new_badge_label | default: 'NEW' }}</span>
+                                {% endif %}
+
+                                {% if section.settings.show_wishlist_button %}
+                                  <button
+                                    type="button"
+                                    class="ws-tab-collections__card-wishlist"
+                                    aria-label="{{ 'accessibility.add_to_wishlist' | t | default: 'Add to wishlist' }}"
+                                    data-product-id="{{ product.id }}"
+                                  >
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                      <path d="M19.67 5.47C17.68 3.83 14.72 4.12 12.89 5.95L12 6.84L11.11 5.95C9.29 4.13 6.32 3.83 4.33 5.47C2.05 7.35 1.93 10.74 3.97 12.78L11.64 20.45C11.84 20.65 12.15 20.65 12.35 20.45L20.02 12.78C22.07 10.74 21.95 7.36 19.67 5.47Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                  </button>
+                                {% endif %}
+
+                                <a class="ws-tab-collections__quick-buy" href="{{ product.url }}">
+                                  {{ section.settings.quick_buy_label | default: 'Quick Buy' }}
+                                </a>
                               </div>
+
                               <div class="ws-tab-collections__card-body">
                                 <a class="ws-tab-collections__card-title" href="{{ product.url }}">{{ product.title }}</a>
                                 <div class="ws-tab-collections__card-price">
@@ -191,13 +258,24 @@
                         {% endfor %}
                       {% endif %}
                     </div>
+
+                    <button
+                      type="button"
+                      class="ws-tab-collections__arrow ws-tab-collections__arrow--next"
+                      ref="nextButtons[]"
+                      aria-label="{{ 'accessibility.slideshow_next' | t }}"
+                    >
+                      <svg class="ws-tab-collections__arrow-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M9.5 6.5L15 12L9.5 17.5" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               </div>
             {% endfor %}
           </div>
         {% else %}
-          <p class="ws-tab-collections__empty">请先添加 Tab block。</p>
+          <p class="ws-tab-collections__empty">{{ 'sections.collection_list.no_collections' | t | default: 'Add a tab to get started.' }}</p>
         {% endif %}
       </div>
     </div>
@@ -216,59 +294,8 @@
   },
   "blocks": [
     {
-      "type": "ws-tab-collections-tab",
-      "name": "Tab",
-      "settings": [
-        {
-          "type": "text",
-          "id": "tab_title",
-          "label": "Tab title",
-          "default": "Best Sellers"
-        },
-        {
-          "type": "url",
-          "id": "view_more_link",
-          "label": "VIEW MORE link"
-        },
-        {
-          "type": "header",
-          "content": "Featured collection"
-        },
-        {
-          "type": "text",
-          "id": "banner_title",
-          "label": "Banner title",
-          "default": "Handpicked For You"
-        },
-        {
-          "type": "image_picker",
-          "id": "banner_image",
-          "label": "Banner image"
-        },
-        {
-          "type": "url",
-          "id": "banner_link",
-          "label": "Banner link"
-        },
-        {
-          "type": "collection",
-          "id": "collection",
-          "label": "Collection"
-        },
-        {
-          "type": "range",
-          "id": "max_products",
-          "label": "Products in row",
-          "min": 2,
-          "max": 12,
-          "step": 1,
-          "default": 6
-        }
-      ]
-    },
-    {
       "type": "tab",
-      "name": "Tab (legacy)",
+      "name": "Tab",
       "settings": [
         {
           "type": "text",
@@ -322,7 +349,8 @@
     {
       "type": "text",
       "id": "section_id",
-      "label": "Section ID"
+      "label": "Section ID",
+      "info": "Example: TabCollections--template--22258844958968__section_tab_collections_apDiUV"
     },
     {
       "type": "text",
@@ -331,16 +359,34 @@
       "default": "Trending This Season"
     },
     {
+      "type": "text",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "default": "1440px"
+    },
+    {
       "type": "color",
       "id": "background_color",
       "label": "Background color",
       "default": "#f8f8f8"
     },
     {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#b8e4dc"
+    },
+    {
       "type": "text",
       "id": "view_more_label",
       "label": "VIEW MORE label",
       "default": "VIEW MORE"
+    },
+    {
+      "type": "text",
+      "id": "quick_buy_label",
+      "label": "Quick Buy label",
+      "default": "Quick Buy"
     },
     {
       "type": "range",
@@ -350,6 +396,30 @@
       "max": 12,
       "step": 1,
       "default": 6
+    },
+    {
+      "type": "checkbox",
+      "id": "show_new_badge",
+      "label": "Show NEW badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "new_badge_tag",
+      "label": "NEW badge product tag",
+      "default": "new"
+    },
+    {
+      "type": "text",
+      "id": "new_badge_label",
+      "label": "NEW badge label",
+      "default": "NEW"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_wishlist_button",
+      "label": "Show wishlist button",
+      "default": true
     },
     {
       "type": "text",
@@ -406,21 +476,21 @@
       "category": "Custom Sections",
       "blocks": [
         {
-          "type": "ws-tab-collections-tab",
+          "type": "tab",
           "settings": {
             "tab_title": "Best Sellers",
             "banner_title": "Handpicked For You"
           }
         },
         {
-          "type": "ws-tab-collections-tab",
+          "type": "tab",
           "settings": {
             "tab_title": "Recommend",
             "banner_title": "Ocean New Drops"
           }
         },
         {
-          "type": "ws-tab-collections-tab",
+          "type": "tab",
           "settings": {
             "tab_title": "New Arrivals",
             "banner_title": "New Drops every 15th"
