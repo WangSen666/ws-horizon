@@ -111,6 +111,7 @@ ws-tab-collections {
 .ws-tab-collections__panels {
   display: grid;
   grid-template-columns: 1fr;
+  position: relative;
 }
 
 .ws-tab-collections__panel {
@@ -127,6 +128,13 @@ ws-tab-collections {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+  z-index: 1;
+}
+
+.ws-tab-collections__panel:not(.is-active) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
 }
 
 .ws-tab-collections__group {

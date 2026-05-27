@@ -65,12 +65,13 @@ export class WsTabCollections extends Component {
     tabPanels.forEach((panel, panelIndex) => {
       const isActive = panelIndex === index;
       panel.classList.toggle('is-active', isActive);
-      panel.hidden = !isActive;
+      panel.setAttribute('aria-hidden', isActive ? 'false' : 'true');
     });
 
     viewMoreLinks.forEach((link, linkIndex) => {
+      const isActive = linkIndex === index;
       link.hidden = linkIndex !== index;
-      link.classList.toggle('is-active', linkIndex === index);
+      link.classList.toggle('is-active', isActive);
     });
 
     if (animate) {
