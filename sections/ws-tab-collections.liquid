@@ -133,9 +133,7 @@
                                 alt: collection_obj.image.alt
                             }}
                           {% else %}
-                            <div class="ws-tab-collections__featured-image ws-tab-collections__featured-image--placeholder">
-                              {{ 'collection-apparel-1' | placeholder_svg_tag: 'placeholder' }}
-                            </div>
+                            <div class="ws-tab-collections__featured-image ws-tab-collections__featured-image--empty"></div>
                           {% endif %}
                           <div class="ws-tab-collections__featured-content">
                             {% if product_count > 0 %}
@@ -178,10 +176,6 @@
                                           alt: hover_media.alt
                                       }}
                                     {% endif %}
-                                  {% else %}
-                                    <div class="ws-tab-collections__card-image ws-tab-collections__card-image--placeholder">
-                                      {{ 'product-apparel-1' | placeholder_svg_tag: 'placeholder' }}
-                                    </div>
                                   {% endif %}
                                 </a>
                                 <a class="ws-tab-collections__quick-buy" href="{{ product.url }}">Quick Buy</a>
@@ -190,24 +184,6 @@
                                 <a class="ws-tab-collections__card-title" href="{{ product.url }}">{{ product.title }}</a>
                                 <div class="ws-tab-collections__card-price">
                                   {% render 'price', product_resource: product %}
-                                </div>
-                              </div>
-                            </div>
-                          </article>
-                        {% endfor %}
-                      {% else %}
-                        {% for i in (1..product_limit) %}
-                          <article class="ws-tab-collections__slide ws-tab-collections__slide--product">
-                            <div class="ws-tab-collections__card ws-tab-collections__card--placeholder">
-                              <div class="ws-tab-collections__card-media-wrap">
-                                <div class="ws-tab-collections__card-image ws-tab-collections__card-image--placeholder">
-                                  {{ 'product-apparel-1' | placeholder_svg_tag: 'placeholder' }}
-                                </div>
-                              </div>
-                              <div class="ws-tab-collections__card-body">
-                                <p class="ws-tab-collections__card-title">{{ 'content.product_card_placeholder' | t }}</p>
-                                <div class="ws-tab-collections__card-price">
-                                  {% render 'price', product_resource: null %}
                                 </div>
                               </div>
                             </div>
@@ -240,8 +216,59 @@
   },
   "blocks": [
     {
-      "type": "tab",
+      "type": "ws-tab-collections-tab",
       "name": "Tab",
+      "settings": [
+        {
+          "type": "text",
+          "id": "tab_title",
+          "label": "Tab title",
+          "default": "Best Sellers"
+        },
+        {
+          "type": "url",
+          "id": "view_more_link",
+          "label": "VIEW MORE link"
+        },
+        {
+          "type": "header",
+          "content": "Featured collection"
+        },
+        {
+          "type": "text",
+          "id": "banner_title",
+          "label": "Banner title",
+          "default": "Handpicked For You"
+        },
+        {
+          "type": "image_picker",
+          "id": "banner_image",
+          "label": "Banner image"
+        },
+        {
+          "type": "url",
+          "id": "banner_link",
+          "label": "Banner link"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "range",
+          "id": "max_products",
+          "label": "Products in row",
+          "min": 2,
+          "max": 12,
+          "step": 1,
+          "default": 6
+        }
+      ]
+    },
+    {
+      "type": "tab",
+      "name": "Tab (legacy)",
       "settings": [
         {
           "type": "text",
@@ -379,21 +406,21 @@
       "category": "Custom Sections",
       "blocks": [
         {
-          "type": "tab",
+          "type": "ws-tab-collections-tab",
           "settings": {
             "tab_title": "Best Sellers",
             "banner_title": "Handpicked For You"
           }
         },
         {
-          "type": "tab",
+          "type": "ws-tab-collections-tab",
           "settings": {
             "tab_title": "Recommend",
             "banner_title": "Ocean New Drops"
           }
         },
         {
-          "type": "tab",
+          "type": "ws-tab-collections-tab",
           "settings": {
             "tab_title": "New Arrivals",
             "banner_title": "New Drops every 15th"

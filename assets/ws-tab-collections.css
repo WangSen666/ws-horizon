@@ -201,11 +201,16 @@ ws-tab-collections {
   object-fit: cover;
 }
 
+.ws-tab-collections__featured-image--empty,
+.ws-tab-collections__featured-image--placeholder {
+  display: block;
+  min-height: 280px;
+  background: rgb(var(--color-foreground-rgb) / 0.06);
+}
+
 .ws-tab-collections__featured-image--placeholder {
   display: grid;
   place-items: center;
-  min-height: 280px;
-  background: rgb(var(--color-foreground-rgb) / 0.06);
 }
 
 .ws-tab-collections__featured-image--placeholder svg {
