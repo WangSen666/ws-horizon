@@ -408,7 +408,7 @@
       "name": "Recommended Carousel",
       "settings": {
         "section_id": "",
-        "content_max_width": 1280,
+        "content_max_width": "1280p",
         "color_scheme": "",
         "padding_top_pc": "36px",
         "padding_bottom_pc": "36px",
