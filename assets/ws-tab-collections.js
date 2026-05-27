@@ -4,6 +4,7 @@ import { Component } from '@theme/component';
  * @typedef {object} WsTabCollectionsRefs
  * @property {HTMLButtonElement[]} tabButtons
  * @property {HTMLElement[]} tabPanels
+ * @property {HTMLAnchorElement[]} viewMoreLinks
  */
 export class WsTabCollections extends Component {
   connectedCallback() {
@@ -21,7 +22,7 @@ export class WsTabCollections extends Component {
    * @param {number} index
    */
   #setActiveTab(index) {
-    const { tabButtons = [], tabPanels = [] } = this.refs;
+    const { tabButtons = [], tabPanels = [], viewMoreLinks = [] } = this.refs;
     if (!tabButtons[index] || !tabPanels[index]) return;
 
     tabButtons.forEach((button, buttonIndex) => {
@@ -34,6 +35,10 @@ export class WsTabCollections extends Component {
       const isActive = panelIndex === index;
       panel.classList.toggle('is-active', isActive);
       panel.hidden = !isActive;
+    });
+
+    viewMoreLinks.forEach((link, linkIndex) => {
+      link.hidden = linkIndex !== index;
     });
   }
 }
