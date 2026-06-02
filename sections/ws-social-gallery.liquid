@@ -1,0 +1,417 @@
+{% liquid
+  assign content_max_width = section.settings.content_max_width | default: 'unset'
+  assign columns_pc = section.settings.columns_pc | default: 4
+  assign columns_tablet = section.settings.columns_tablet | default: 3
+  assign mobile_card_width = section.settings.mobile_card_width | default: 82
+  assign image_sizes = '(min-width: 1024px) calc((100vw - 120px) / ' | append: columns_pc | append: '), (min-width: 750px) calc((100vw - 80px) / ' | append: columns_tablet | append: '), ' | append: mobile_card_width | append: 'vw'
+%}
+
+<style>
+  .ws-social-gallery__background-{{ section.id }} {
+    background-color: {{ section.settings.background_color }};
+  }
+
+  .ws-social-gallery-{{ section.id }} {
+    --ws-social-gallery-gap: {{ section.settings.grid_gap }};
+    --ws-social-gallery-columns-pc: {{ columns_pc }};
+    --ws-social-gallery-columns-tablet: {{ columns_tablet }};
+    --ws-social-gallery-mobile-card-width: {{ mobile_card_width }}vw;
+    --ws-social-gallery-image-ratio: {{ section.settings.image_ratio }}%;
+    --ws-social-gallery-radius: {{ section.settings.border_radius }};
+    padding-top: {{ section.settings.padding_top_pc }};
+    padding-bottom: {{ section.settings.padding_bottom_pc }};
+    margin-top: {{ section.settings.margin_top_pc }};
+    margin-bottom: {{ section.settings.margin_bottom_pc }};
+  }
+
+  .ws-social-gallery-{{ section.id }} .ws-social-gallery__inner {
+    max-width: {{ content_max_width }};
+  }
+
+  @media (max-width: 749px) {
+    .ws-social-gallery-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top_mobile }};
+      padding-bottom: {{ section.settings.padding_bottom_mobile }};
+      margin-top: {{ section.settings.margin_top_mobile }};
+      margin-bottom: {{ section.settings.margin_bottom_mobile }};
+    }
+  }
+</style>
+
+<div class="section-background ws-social-gallery__background ws-social-gallery__background-{{ section.id }}"></div>
+
+<div
+  class="section section--full-width ws-social-gallery ws-social-gallery-{{ section.id }} ws-social-gallery--text-{{ section.settings.text_tone }}"
+  {% if request.visual_preview_mode %}
+    data-shopify-visual-preview
+  {% endif %}
+>
+  <div
+    class="ws-social-gallery__shell"
+    {% if section.settings.section_id != blank %}
+      id="{{ section.settings.section_id | escape }}"
+    {% endif %}
+  >
+    <div class="ws-social-gallery__inner">
+      {% if section.settings.subheading != blank or section.settings.heading != blank or section.settings.text != blank %}
+        <header class="ws-social-gallery__header">
+          {% if section.settings.subheading != blank %}
+            <p class="ws-social-gallery__subheading">{{ section.settings.subheading }}</p>
+          {% endif %}
+
+          {% if section.settings.heading != blank %}
+            <h2 class="ws-social-gallery__heading">{{ section.settings.heading }}</h2>
+          {% endif %}
+
+          {% if section.settings.text != blank %}
+            <div class="ws-social-gallery__text">{{ section.settings.text }}</div>
+          {% endif %}
+        </header>
+      {% endif %}
+
+      {% if section.blocks.size > 0 %}
+        <div class="ws-social-gallery__viewport">
+          <div class="ws-social-gallery__grid" role="list">
+            {% for block in section.blocks %}
+              <article class="ws-social-gallery__item" role="listitem" {{ block.shopify_attributes }}>
+                <div class="ws-social-gallery__item-inner">
+                  {% if block.settings.handle != blank %}
+                    <div class="ws-social-gallery__handle">
+                      {% if block.settings.instagram_url != blank %}
+                        <a
+                          href="{{ block.settings.instagram_url }}"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {{ block.settings.handle }}
+                        </a>
+                      {% else %}
+                        <span>{{ block.settings.handle }}</span>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+
+                  <div class="ws-social-gallery__media-wrapper">
+                    {% if block.settings.link != blank %}
+                      <a
+                        class="ws-social-gallery__media-link"
+                        href="{{ block.settings.link }}"
+                        {% if block.settings.open_in_new_tab %}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        {% endif %}
+                      >
+                    {% else %}
+                      <div class="ws-social-gallery__media-link" role="group">
+                    {% endif %}
+
+                    <div class="ws-social-gallery__media">
+                      {% if block.settings.image != blank %}
+                        {{
+                          block.settings.image
+                          | image_url: width: 1600
+                          | image_tag:
+                            loading: 'lazy',
+                            widths: '240, 360, 540, 720, 900, 1080, 1296, 1600',
+                            sizes: image_sizes,
+                            class: 'ws-social-gallery__image',
+                            alt: block.settings.image.alt | default: block.settings.handle
+                        }}
+                      {% else %}
+                        <div class="ws-social-gallery__image ws-social-gallery__image--placeholder">
+                          {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder' }}
+                        </div>
+                      {% endif %}
+                    </div>
+
+                    {% if block.settings.link != blank %}
+                      </a>
+                    {% else %}
+                      </div>
+                    {% endif %}
+                  </div>
+
+                  {% if block.settings.button_label != blank %}
+                    <div class="ws-social-gallery__actions">
+                      <a
+                        class="ws-social-gallery__button"
+                        {% if block.settings.link != blank %}
+                          href="{{ block.settings.link }}"
+                        {% else %}
+                          role="link"
+                          aria-disabled="true"
+                        {% endif %}
+                        {% if block.settings.open_in_new_tab and block.settings.link != blank %}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        {% endif %}
+                      >
+                        {{ block.settings.button_label }}
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{{ 'ws-social-gallery.css' | asset_url | stylesheet_tag }}
+
+{% schema %}
+{
+  "name": "Social Gallery",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [
+    {
+      "type": "gallery_item",
+      "name": "Gallery item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "handle",
+          "label": "Instagram handle",
+          "default": "@sojosvision"
+        },
+        {
+          "type": "url",
+          "id": "instagram_url",
+          "label": "Instagram link"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Shop link"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Shop the look"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_in_new_tab",
+          "label": "Open shop link in new tab",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Shell"
+    },
+    {
+      "type": "text",
+      "id": "section_id",
+      "label": "Section ID",
+      "info": "Custom HTML ID for anchor links"
+    },
+    {
+      "type": "text",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "default": "unset"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "text_tone",
+      "label": "Text color",
+      "options": [
+        {
+          "value": "dark",
+          "label": "Dark"
+        },
+        {
+          "value": "light",
+          "label": "Light"
+        }
+      ],
+      "default": "dark"
+    },
+    {
+      "type": "header",
+      "content": "Header"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Tag @sojosvision for a chance to be featured"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Honored to see icons shine in SOJOS"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_pc",
+      "label": "Columns per row (desktop)",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "columns_tablet",
+      "label": "Columns per row (tablet)",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "mobile_card_width",
+      "label": "Mobile card width",
+      "min": 65,
+      "max": 95,
+      "step": 1,
+      "unit": "%",
+      "default": 82
+    },
+    {
+      "type": "text",
+      "id": "grid_gap",
+      "label": "Grid gap",
+      "default": "20px"
+    },
+    {
+      "type": "range",
+      "id": "image_ratio",
+      "label": "Image ratio",
+      "min": 60,
+      "max": 160,
+      "step": 5,
+      "unit": "%",
+      "default": 120
+    },
+    {
+      "type": "text",
+      "id": "border_radius",
+      "label": "Border radius",
+      "default": "0"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "text",
+      "id": "padding_top_pc",
+      "label": "PC padding top",
+      "default": "32px"
+    },
+    {
+      "type": "text",
+      "id": "padding_bottom_pc",
+      "label": "PC padding bottom",
+      "default": "32px"
+    },
+    {
+      "type": "text",
+      "id": "padding_top_mobile",
+      "label": "Mobile padding top",
+      "default": "24px"
+    },
+    {
+      "type": "text",
+      "id": "padding_bottom_mobile",
+      "label": "Mobile padding bottom",
+      "default": "24px"
+    },
+    {
+      "type": "text",
+      "id": "margin_top_pc",
+      "label": "PC margin top",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom_pc",
+      "label": "PC margin bottom",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_top_mobile",
+      "label": "Mobile margin top",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom_mobile",
+      "label": "Mobile margin bottom",
+      "default": "0"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Social Gallery",
+      "category": "Custom Sections",
+      "blocks": [
+        {
+          "type": "gallery_item",
+          "settings": {
+            "handle": "@bellahadid",
+            "button_label": "Shop the look"
+          }
+        },
+        {
+          "type": "gallery_item",
+          "settings": {
+            "handle": "@parishilton",
+            "button_label": "Shop the look"
+          }
+        },
+        {
+          "type": "gallery_item",
+          "settings": {
+            "handle": "@victoriajustice",
+            "button_label": "Shop the look"
+          }
+        },
+        {
+          "type": "gallery_item",
+          "settings": {
+            "handle": "@teddyswims",
+            "button_label": "Shop the look"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
