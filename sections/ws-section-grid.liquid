@@ -1,0 +1,426 @@
+{% liquid
+  assign content_max_width = section.settings.content_max_width | default: 'unset'
+  assign block_count = section.blocks.size
+%}
+
+<style>
+  .ws-section-grid-{{ section.id }} {
+    --ws-section-grid-bg: {{ section.settings.background_color }};
+    --ws-section-grid-gap: {{ section.settings.grid_gap }};
+    --ws-section-grid-height: {{ section.settings.item_height_pc }};
+    --ws-section-grid-radius: {{ section.settings.border_radius }};
+    padding-top: {{ section.settings.padding_top_pc }};
+    padding-bottom: {{ section.settings.padding_bottom_pc }};
+    margin-top: {{ section.settings.margin_top_pc }};
+    margin-bottom: {{ section.settings.margin_bottom_pc }};
+  }
+
+  .ws-section-grid-{{ section.id }} .ws-section-grid__inner {
+    max-width: {{ content_max_width }};
+  }
+
+  @media (max-width: 749px) {
+    .ws-section-grid-{{ section.id }} {
+      --ws-section-grid-height: {{ section.settings.item_height_mobile }};
+      padding-top: {{ section.settings.padding_top_mobile }};
+      padding-bottom: {{ section.settings.padding_bottom_mobile }};
+      margin-top: {{ section.settings.margin_top_mobile }};
+      margin-bottom: {{ section.settings.margin_bottom_mobile }};
+    }
+  }
+</style>
+
+<div
+  class="section section--full-width ws-section-grid ws-section-grid-{{ section.id }}"
+  {% if request.visual_preview_mode %}
+    data-shopify-visual-preview
+  {% endif %}
+>
+  <div
+    class="ws-section-grid__shell"
+    {% if section.settings.section_id != blank %}
+      id="{{ section.settings.section_id | escape }}"
+    {% endif %}
+  >
+    <div class="ws-section-grid__inner">
+      {% if block_count > 0 %}
+        <div class="ws-section-grid__grid">
+          {% for block in section.blocks %}
+            {% liquid
+              assign block_link = block.settings.link
+              if block_link == blank and block.settings.collection != blank
+                assign block_link = block.settings.collection.url
+              endif
+
+              assign has_content = false
+              if block.settings.subheading != blank or block.settings.heading != blank or block.settings.text != blank
+                assign has_content = true
+              endif
+
+              assign text_tone = block.settings.text_tone
+              assign content_position = block.settings.content_position
+            %}
+
+            <style>
+              #ws-section-grid-item-{{ section.id }}-{{ block.id }} {
+                --ws-section-grid-item-width: {{ block.settings.block_width }};
+                --ws-section-grid-overlay-opacity: {{ block.settings.overlay_opacity | divided_by: 100.0 }};
+              }
+            </style>
+
+            <div
+              id="ws-section-grid-item-{{ section.id }}-{{ block.id }}"
+              class="ws-section-grid__item ws-section-grid__item--{{ content_position }} ws-section-grid__item--text-{{ text_tone }}"
+              {{ block.shopify_attributes }}
+            >
+              <div class="ws-section-grid__item-inner">
+                {% if block_link != blank %}
+                  <a
+                    class="ws-section-grid__link"
+                    href="{{ block_link }}"
+                    {% if block.settings.open_in_new_tab %}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    {% endif %}
+                  >
+                {% else %}
+                  <div class="ws-section-grid__link" role="group">
+                {% endif %}
+
+                <div class="ws-section-grid__media">
+                  {% if block.settings.image != blank %}
+                    {{
+                      block.settings.image
+                      | image_url: width: 1500
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '360, 540, 750, 900, 1080, 1296, 1500',
+                        sizes: '(min-width: 1024px) calc(((100vw - 120px) * 0.5) - 20px), (min-width: 750px) calc(((100vw - 80px) * 0.5) - 20px), calc(100vw - 32px)',
+                        class: 'ws-section-grid__image',
+                        alt: block.settings.image.alt | default: block.settings.heading
+                    }}
+                  {% else %}
+                    <div class="ws-section-grid__image ws-section-grid__image--placeholder">
+                      {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder' }}
+                    </div>
+                  {% endif %}
+                </div>
+
+                {% if has_content %}
+                  <div class="ws-section-grid__content ws-section-grid__content--{{ content_position }}">
+                    <div class="ws-section-grid__content-inner">
+                      {% if block.settings.subheading != blank %}
+                        <p class="ws-section-grid__subheading">{{ block.settings.subheading }}</p>
+                      {% endif %}
+
+                      {% if block.settings.heading != blank %}
+                        <h3 class="ws-section-grid__heading">{{ block.settings.heading }}</h3>
+                      {% endif %}
+
+                      {% if block.settings.text != blank %}
+                        <p class="ws-section-grid__text">{{ block.settings.text }}</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endif %}
+
+                {% if block_link != blank %}
+                  </a>
+                {% else %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{{ 'ws-section-grid.css' | asset_url | stylesheet_tag }}
+
+{% schema %}
+{
+  "name": "Section Grid",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [
+    {
+      "type": "grid_item",
+      "name": "Grid item",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Media"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "range",
+          "id": "overlay_opacity",
+          "label": "Image overlay opacity",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "default": 20
+        },
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading",
+          "default": "shop by"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Grid item"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text"
+        },
+        {
+          "type": "select",
+          "id": "text_tone",
+          "label": "Text color",
+          "options": [
+            {
+              "value": "light",
+              "label": "Light"
+            },
+            {
+              "value": "dark",
+              "label": "Dark"
+            }
+          ],
+          "default": "light"
+        },
+        {
+          "type": "select",
+          "id": "content_position",
+          "label": "Content position",
+          "options": [
+            {
+              "value": "bottom-left",
+              "label": "Bottom left"
+            },
+            {
+              "value": "bottom-center",
+              "label": "Bottom center"
+            },
+            {
+              "value": "bottom-right",
+              "label": "Bottom right"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "top-left",
+              "label": "Top left"
+            },
+            {
+              "value": "top-center",
+              "label": "Top center"
+            },
+            {
+              "value": "top-right",
+              "label": "Top right"
+            }
+          ],
+          "default": "bottom-center"
+        },
+        {
+          "type": "header",
+          "content": "Link"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection",
+          "info": "Used when link is empty"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_in_new_tab",
+          "label": "Open in new tab",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "select",
+          "id": "block_width",
+          "label": "Block width (desktop)",
+          "options": [
+            {
+              "value": "100%",
+              "label": "Full width"
+            },
+            {
+              "value": "50%",
+              "label": "Half width"
+            },
+            {
+              "value": "33.333%",
+              "label": "One third"
+            },
+            {
+              "value": "25%",
+              "label": "One quarter"
+            }
+          ],
+          "default": "50%"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section shell"
+    },
+    {
+      "type": "text",
+      "id": "section_id",
+      "label": "Section ID",
+      "info": "Custom HTML ID for anchor links"
+    },
+    {
+      "type": "text",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "default": "unset"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "text",
+      "id": "grid_gap",
+      "label": "Grid gap",
+      "default": "10px"
+    },
+    {
+      "type": "text",
+      "id": "item_height_pc",
+      "label": "Item height (desktop)",
+      "default": "450px"
+    },
+    {
+      "type": "text",
+      "id": "item_height_mobile",
+      "label": "Item height (mobile)",
+      "default": "250px"
+    },
+    {
+      "type": "text",
+      "id": "border_radius",
+      "label": "Border radius",
+      "default": "0"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "text",
+      "id": "padding_top_pc",
+      "label": "PC padding top",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "padding_bottom_pc",
+      "label": "PC padding bottom",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "padding_top_mobile",
+      "label": "Mobile padding top",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "padding_bottom_mobile",
+      "label": "Mobile padding bottom",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_top_pc",
+      "label": "PC margin top",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom_pc",
+      "label": "PC margin bottom",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_top_mobile",
+      "label": "Mobile margin top",
+      "default": "0"
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom_mobile",
+      "label": "Mobile margin bottom",
+      "default": "0"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Section Grid",
+      "category": "Custom Sections",
+      "blocks": [
+        {
+          "type": "grid_item",
+          "settings": {
+            "subheading": "shop by",
+            "heading": "Women's Style",
+            "overlay_opacity": 20,
+            "block_width": "50%"
+          }
+        },
+        {
+          "type": "grid_item",
+          "settings": {
+            "subheading": "shop by",
+            "heading": "Men's Style",
+            "overlay_opacity": 10,
+            "block_width": "50%"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

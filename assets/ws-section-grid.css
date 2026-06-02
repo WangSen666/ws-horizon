@@ -1,0 +1,196 @@
+.ws-section-grid {
+  display: block;
+  width: 100%;
+  background: var(--ws-section-grid-bg, #f8f8f8);
+}
+
+.ws-section-grid__shell {
+  width: 100%;
+}
+
+.ws-section-grid__inner {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--page-margin);
+}
+
+.ws-section-grid__grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-inline: calc(var(--ws-section-grid-gap, 10px) / -2);
+}
+
+.ws-section-grid__item {
+  width: var(--ws-section-grid-item-width, 50%);
+  padding: calc(var(--ws-section-grid-gap, 10px) / 2);
+}
+
+@media (max-width: 749px) {
+  .ws-section-grid__item {
+    width: 100%;
+  }
+}
+
+.ws-section-grid__item-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  height: var(--ws-section-grid-height, 450px);
+  overflow: hidden;
+  border-radius: var(--ws-section-grid-radius, 0);
+  transform: translateZ(0);
+}
+
+.ws-section-grid__link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-row: 1;
+  grid-column: 1;
+  min-height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ws-section-grid__media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.ws-section-grid__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: var(--ws-section-grid-overlay-opacity, 0.2);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ws-section-grid__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.45s ease;
+}
+
+.ws-section-grid__image--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.ws-section-grid__image--placeholder svg {
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ws-section-grid__item:hover .ws-section-grid__image,
+  .ws-section-grid__item:focus-within .ws-section-grid__image {
+    transform: scale(var(--hover-scale-amount, 1.03));
+  }
+}
+
+.ws-section-grid__content {
+  position: relative;
+  z-index: 2;
+  grid-row: 1;
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+@media screen and (min-width: 750px) {
+  .ws-section-grid__content {
+    padding: 32px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .ws-section-grid__content {
+    padding: 48px;
+  }
+}
+
+.ws-section-grid__content--bottom-left,
+.ws-section-grid__content--bottom-center,
+.ws-section-grid__content--bottom-right {
+  justify-content: flex-end;
+}
+
+.ws-section-grid__content--top-left,
+.ws-section-grid__content--top-center,
+.ws-section-grid__content--top-right {
+  justify-content: flex-start;
+}
+
+.ws-section-grid__content--center {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.ws-section-grid__content--bottom-left,
+.ws-section-grid__content--top-left {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.ws-section-grid__content--bottom-center,
+.ws-section-grid__content--top-center {
+  align-items: center;
+  text-align: center;
+}
+
+.ws-section-grid__content--bottom-right,
+.ws-section-grid__content--top-right {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.ws-section-grid__content-inner {
+  max-width: 100%;
+}
+
+.ws-section-grid__item--text-light {
+  --ws-section-grid-text: #fff;
+}
+
+.ws-section-grid__item--text-dark {
+  --ws-section-grid-text: #111;
+}
+
+.ws-section-grid__subheading {
+  margin: 0 0 10px;
+  font-family: var(--font-subheading--family);
+  font-style: var(--font-subheading--style);
+  font-weight: var(--font-subheading--weight);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--ws-section-grid-text, #fff);
+}
+
+.ws-section-grid__heading {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--ws-section-grid-text, #fff);
+}
+
+.ws-section-grid__text {
+  margin: 10px 0 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ws-section-grid-text, #fff);
+}
