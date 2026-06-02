@@ -1326,13 +1326,11 @@
             "overlay_opacity": 20,
             "subheading": "shop by",
             "heading": "Grid item",
-            "text": "",
+            "text": "ssafsa sadfasdfsdfsdf sadfsdfsadfsadf safsd",
             "text_tone": "light",
             "content_position": "bottom-center",
-            "link": "",
-            "collection": "",
-            "open_in_new_tab": false,
-            "block_width": "50%"
+            "link": "shopify://pages/blog",
+            "open_in_new_tab": false
           }
         },
         "grid_item_aqzCr6": {
@@ -1345,9 +1343,7 @@
             "text_tone": "light",
             "content_position": "bottom-center",
             "link": "",
-            "collection": "",
-            "open_in_new_tab": false,
-            "block_width": "50%"
+            "open_in_new_tab": false
           }
         },
         "grid_item_Y8eNge": {
@@ -1360,9 +1356,7 @@
             "text_tone": "light",
             "content_position": "bottom-center",
             "link": "",
-            "collection": "",
-            "open_in_new_tab": false,
-            "block_width": "50%"
+            "open_in_new_tab": false
           }
         },
         "grid_item_3MBACr": {
@@ -1375,9 +1369,7 @@
             "text_tone": "light",
             "content_position": "bottom-center",
             "link": "",
-            "collection": "",
-            "open_in_new_tab": false,
-            "block_width": "50%"
+            "open_in_new_tab": false
           }
         }
       },
@@ -1393,6 +1385,8 @@
         "content_max_width": "unset",
         "background_color": "#b3152a",
         "grid_gap": "10px",
+        "columns_pc": 2,
+        "columns_mobile": 2,
         "item_height_pc": "450px",
         "item_height_mobile": "250px",
         "border_radius": "0",
