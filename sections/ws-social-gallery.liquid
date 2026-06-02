@@ -2,8 +2,9 @@
   assign content_max_width = section.settings.content_max_width | default: 'unset'
   assign columns_pc = section.settings.columns_pc | default: 4
   assign columns_tablet = section.settings.columns_tablet | default: 3
+  assign columns_mobile = section.settings.columns_mobile | default: 2
   assign mobile_card_width = section.settings.mobile_card_width | default: 82
-  assign image_sizes = '(min-width: 1024px) calc((100vw - 120px) / ' | append: columns_pc | append: '), (min-width: 750px) calc((100vw - 80px) / ' | append: columns_tablet | append: '), ' | append: mobile_card_width | append: 'vw'
+  assign image_sizes = '(min-width: 1024px) calc((100vw - 120px) / ' | append: columns_pc | append: '), (min-width: 750px) calc((100vw - 80px) / ' | append: columns_tablet | append: '), calc((100vw - 32px) / ' | append: columns_mobile | append: ')'
 %}
 
 <style>
@@ -15,6 +16,7 @@
     --ws-social-gallery-gap: {{ section.settings.grid_gap }};
     --ws-social-gallery-columns-pc: {{ columns_pc }};
     --ws-social-gallery-columns-tablet: {{ columns_tablet }};
+    --ws-social-gallery-columns-mobile: {{ columns_mobile }};
     --ws-social-gallery-mobile-card-width: {{ mobile_card_width }}vw;
     --ws-social-gallery-image-ratio: {{ section.settings.image_ratio }}%;
     --ws-social-gallery-radius: {{ section.settings.border_radius }};
@@ -41,7 +43,7 @@
 <div class="section-background ws-social-gallery__background ws-social-gallery__background-{{ section.id }}"></div>
 
 <div
-  class="section section--full-width ws-social-gallery ws-social-gallery-{{ section.id }} ws-social-gallery--text-{{ section.settings.text_tone }}"
+  class="section section--full-width ws-social-gallery ws-social-gallery-{{ section.id }} ws-social-gallery--layout-{{ section.settings.layout_type }} ws-social-gallery--text-{{ section.settings.text_tone }}"
   {% if request.visual_preview_mode %}
     data-shopify-visual-preview
   {% endif %}
@@ -70,10 +72,11 @@
       {% endif %}
 
       {% if section.blocks.size > 0 %}
-        <div class="ws-social-gallery__viewport">
-          <div class="ws-social-gallery__grid" role="list">
+        <ws-social-gallery class="ws-social-gallery__carousel" data-layout="{{ section.settings.layout_type }}">
+          <div class="ws-social-gallery__viewport">
+            <div class="ws-social-gallery__grid" role="list" ref="track">
             {% for block in section.blocks %}
-              <article class="ws-social-gallery__item" role="listitem" {{ block.shopify_attributes }}>
+              <article class="ws-social-gallery__item" role="listitem" ref="slides[]" {{ block.shopify_attributes }}>
                 <div class="ws-social-gallery__item-inner">
                   {% if block.settings.handle != blank %}
                     <div class="ws-social-gallery__handle">
@@ -153,14 +156,37 @@
                 </div>
               </article>
             {% endfor %}
+            </div>
           </div>
-        </div>
+
+          {% if section.settings.layout_type == 'slider' and section.settings.show_arrows %}
+            <div class="ws-social-gallery__controls">
+              <button
+                type="button"
+                class="ws-social-gallery__arrow ws-social-gallery__arrow--previous"
+                ref="previousButton"
+                aria-label="Previous slide"
+              >
+                <span aria-hidden="true">‹</span>
+              </button>
+              <button
+                type="button"
+                class="ws-social-gallery__arrow ws-social-gallery__arrow--next"
+                ref="nextButton"
+                aria-label="Next slide"
+              >
+                <span aria-hidden="true">›</span>
+              </button>
+            </div>
+          {% endif %}
+        </ws-social-gallery>
       {% endif %}
     </div>
   </div>
 </div>
 
 {{ 'ws-social-gallery.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'ws-social-gallery.js' | asset_url }}" type="module"></script>
 
 {% schema %}
 {
@@ -275,6 +301,29 @@
       "content": "Layout"
     },
     {
+      "type": "select",
+      "id": "layout_type",
+      "label": "Layout mode",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Grid"
+        },
+        {
+          "value": "slider",
+          "label": "Slider"
+        }
+      ],
+      "default": "slider"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show slider arrows",
+      "default": true,
+      "visible_if": "{{ section.settings.layout_type == 'slider' }}"
+    },
+    {
       "type": "range",
       "id": "columns_pc",
       "label": "Columns per row (desktop)",
@@ -294,13 +343,24 @@
     },
     {
       "type": "range",
+      "id": "columns_mobile",
+      "label": "Columns per row (mobile grid)",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 2,
+      "visible_if": "{{ section.settings.layout_type == 'grid' }}"
+    },
+    {
+      "type": "range",
       "id": "mobile_card_width",
       "label": "Mobile card width",
       "min": 65,
       "max": 95,
       "step": 1,
       "unit": "%",
-      "default": 82
+      "default": 82,
+      "visible_if": "{{ section.settings.layout_type == 'slider' }}"
     },
     {
       "type": "text",
