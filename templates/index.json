@@ -1399,6 +1399,92 @@
         "margin_top_mobile": "0",
         "margin_bottom_mobile": "0"
       }
+    },
+    "ws_social_gallery_ryBXxa": {
+      "type": "ws-social-gallery",
+      "blocks": {
+        "gallery_item_jKpYji": {
+          "type": "gallery_item",
+          "settings": {
+            "handle": "@sojosvision",
+            "instagram_url": "",
+            "link": "",
+            "button_label": "Shop the look",
+            "open_in_new_tab": false
+          }
+        },
+        "gallery_item_kamprc": {
+          "type": "gallery_item",
+          "settings": {
+            "handle": "@bellahadid",
+            "instagram_url": "",
+            "link": "",
+            "button_label": "Shop the look",
+            "open_in_new_tab": false
+          }
+        },
+        "gallery_item_9DPNNz": {
+          "type": "gallery_item",
+          "settings": {
+            "handle": "@parishilton",
+            "instagram_url": "",
+            "link": "",
+            "button_label": "Shop the look",
+            "open_in_new_tab": false
+          }
+        },
+        "gallery_item_kPzHgN": {
+          "type": "gallery_item",
+          "settings": {
+            "handle": "@victoriajustice",
+            "instagram_url": "",
+            "link": "",
+            "button_label": "Shop the look",
+            "open_in_new_tab": false
+          }
+        },
+        "gallery_item_CUawhe": {
+          "type": "gallery_item",
+          "settings": {
+            "handle": "@teddyswims",
+            "instagram_url": "",
+            "link": "",
+            "button_label": "Shop the look",
+            "open_in_new_tab": false
+          }
+        }
+      },
+      "block_order": [
+        "gallery_item_jKpYji",
+        "gallery_item_kamprc",
+        "gallery_item_9DPNNz",
+        "gallery_item_kPzHgN",
+        "gallery_item_CUawhe"
+      ],
+      "name": "Social Gallery",
+      "settings": {
+        "section_id": "",
+        "content_max_width": "unset",
+        "background_color": "#ffffff",
+        "text_tone": "dark",
+        "subheading": "Tag @sojosvision for a chance to be featured",
+        "heading": "Honored to see icons shine in SOJOS",
+        "text": "",
+        "columns_pc": 4,
+        "columns_tablet": 3,
+        "mobile_card_width": 82,
+        "grid_gap": "20px",
+        "image_ratio": 120,
+        "border_radius": "0",
+        "padding_top_pc": "32px",
+        "padding_bottom_pc": "32px",
+        "padding_top_mobile": "24px",
+        "padding_bottom_mobile": "24px",
+        "margin_top_pc": "0",
+        "margin_bottom_pc": "0",
+        "margin_top_mobile": "0",
+        "margin_bottom_mobile": "0"
+      }
     }
   },
   "order": [
@@ -1412,6 +1498,7 @@
     "featured_product_information_PrxAf7",
     "product_list_pcr77q",
     "product_list_EbrEdX",
-    "ws_section_grid_UcX8Fh"
+    "ws_section_grid_UcX8Fh",
+    "ws_social_gallery_ryBXxa"
   ]
 }
