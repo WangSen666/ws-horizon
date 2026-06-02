@@ -17,6 +17,7 @@
           "settings": {
             "media_type": "image",
             "image": "shopify://shop_images/2.webp",
+            "mobile_media_type": "image",
             "title": "Ocean Collection New Drop",
             "button_1_label": "3",
             "button_1_link": "",
@@ -33,6 +34,7 @@
           "settings": {
             "media_type": "image",
             "image": "shopify://shop_images/banner1.webp",
+            "mobile_media_type": "image",
             "title": "Ocean Collection New Drop",
             "button_1_label": "",
             "button_1_link": "",
@@ -570,7 +572,7 @@
         "gradient_direction": "to top",
         "section_width": "page-width",
         "section_height": "auto",
-        "hotspot_color": "#FFFFFF57",
+        "hotspot_color": "#ffffff57",
         "bullseye_color": "#ffffff",
         "color_scheme": "scheme-1",
         "product_title_gap": 8,
@@ -1314,6 +1316,95 @@
         "padding-block-start": 48,
         "padding-block-end": 48
       }
+    },
+    "ws_section_grid_UcX8Fh": {
+      "type": "ws-section-grid",
+      "blocks": {
+        "grid_item_REbjVc": {
+          "type": "grid_item",
+          "settings": {
+            "overlay_opacity": 20,
+            "subheading": "shop by",
+            "heading": "Grid item",
+            "text": "",
+            "text_tone": "light",
+            "content_position": "bottom-center",
+            "link": "",
+            "collection": "",
+            "open_in_new_tab": false,
+            "block_width": "50%"
+          }
+        },
+        "grid_item_aqzCr6": {
+          "type": "grid_item",
+          "settings": {
+            "overlay_opacity": 20,
+            "subheading": "shop by",
+            "heading": "Grid item",
+            "text": "",
+            "text_tone": "light",
+            "content_position": "bottom-center",
+            "link": "",
+            "collection": "",
+            "open_in_new_tab": false,
+            "block_width": "50%"
+          }
+        },
+        "grid_item_Y8eNge": {
+          "type": "grid_item",
+          "settings": {
+            "overlay_opacity": 20,
+            "subheading": "shop by",
+            "heading": "Women's Style",
+            "text": "",
+            "text_tone": "light",
+            "content_position": "bottom-center",
+            "link": "",
+            "collection": "",
+            "open_in_new_tab": false,
+            "block_width": "50%"
+          }
+        },
+        "grid_item_3MBACr": {
+          "type": "grid_item",
+          "settings": {
+            "overlay_opacity": 10,
+            "subheading": "shop by",
+            "heading": "Men's Style",
+            "text": "",
+            "text_tone": "light",
+            "content_position": "bottom-center",
+            "link": "",
+            "collection": "",
+            "open_in_new_tab": false,
+            "block_width": "50%"
+          }
+        }
+      },
+      "block_order": [
+        "grid_item_REbjVc",
+        "grid_item_aqzCr6",
+        "grid_item_Y8eNge",
+        "grid_item_3MBACr"
+      ],
+      "name": "Section Grid",
+      "settings": {
+        "section_id": "",
+        "content_max_width": "unset",
+        "background_color": "#f8f8f8",
+        "grid_gap": "10px",
+        "item_height_pc": "450px",
+        "item_height_mobile": "250px",
+        "border_radius": "0",
+        "padding_top_pc": "0",
+        "padding_bottom_pc": "0",
+        "padding_top_mobile": "0",
+        "padding_bottom_mobile": "0",
+        "margin_top_pc": "0",
+        "margin_bottom_pc": "0",
+        "margin_top_mobile": "0",
+        "margin_bottom_mobile": "0"
+      }
     }
   },
   "order": [
@@ -1326,6 +1417,7 @@
     "product_recommendations_tgpbhk",
     "featured_product_information_PrxAf7",
     "product_list_pcr77q",
-    "product_list_EbrEdX"
+    "product_list_EbrEdX",
+    "ws_section_grid_UcX8Fh"
   ]
 }
