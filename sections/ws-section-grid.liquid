@@ -1,12 +1,20 @@
 {% liquid
   assign content_max_width = section.settings.content_max_width | default: 'unset'
   assign block_count = section.blocks.size
+  assign columns_pc = section.settings.columns_pc | default: 4
+  assign columns_mobile = section.settings.columns_mobile | default: 2
+  assign image_sizes = '(min-width: 750px) calc((100vw - 80px) / ' | append: columns_pc | append: '), calc((100vw - 32px) / ' | append: columns_mobile | append: ')'
 %}
 
 <style>
+  .ws-section-grid__background-{{ section.id }} {
+    background-color: {{ section.settings.background_color }};
+  }
+
   .ws-section-grid-{{ section.id }} {
-    --ws-section-grid-bg: {{ section.settings.background_color }};
     --ws-section-grid-gap: {{ section.settings.grid_gap }};
+    --ws-section-grid-columns-pc: {{ columns_pc }};
+    --ws-section-grid-columns-mobile: {{ columns_mobile }};
     --ws-section-grid-height: {{ section.settings.item_height_pc }};
     --ws-section-grid-radius: {{ section.settings.border_radius }};
     padding-top: {{ section.settings.padding_top_pc }};
@@ -30,6 +38,8 @@
   }
 </style>
 
+<div class="section-background ws-section-grid__background ws-section-grid__background-{{ section.id }}"></div>
+
 <div
   class="section section--full-width ws-section-grid ws-section-grid-{{ section.id }}"
   {% if request.visual_preview_mode %}
@@ -48,9 +58,6 @@
           {% for block in section.blocks %}
             {% liquid
               assign block_link = block.settings.link
-              if block_link == blank and block.settings.collection != blank
-                assign block_link = block.settings.collection.url
-              endif
 
               assign has_content = false
               if block.settings.subheading != blank or block.settings.heading != blank or block.settings.text != blank
@@ -63,7 +70,6 @@
 
             <style>
               #ws-section-grid-item-{{ section.id }}-{{ block.id }} {
-                --ws-section-grid-item-width: {{ block.settings.block_width }};
                 --ws-section-grid-overlay-opacity: {{ block.settings.overlay_opacity | divided_by: 100.0 }};
               }
             </style>
@@ -95,7 +101,7 @@
                       | image_tag:
                         loading: 'lazy',
                         widths: '360, 540, 750, 900, 1080, 1296, 1500',
-                        sizes: '(min-width: 1024px) calc(((100vw - 120px) * 0.5) - 20px), (min-width: 750px) calc(((100vw - 80px) * 0.5) - 20px), calc(100vw - 32px)',
+                        sizes: image_sizes,
                         class: 'ws-section-grid__image',
                         alt: block.settings.image.alt | default: block.settings.heading
                     }}
@@ -254,44 +260,10 @@
           "label": "Link"
         },
         {
-          "type": "collection",
-          "id": "collection",
-          "label": "Collection",
-          "info": "Used when link is empty"
-        },
-        {
           "type": "checkbox",
           "id": "open_in_new_tab",
           "label": "Open in new tab",
           "default": false
-        },
-        {
-          "type": "header",
-          "content": "Layout"
-        },
-        {
-          "type": "select",
-          "id": "block_width",
-          "label": "Block width (desktop)",
-          "options": [
-            {
-              "value": "100%",
-              "label": "Full width"
-            },
-            {
-              "value": "50%",
-              "label": "Half width"
-            },
-            {
-              "value": "33.333%",
-              "label": "One third"
-            },
-            {
-              "value": "25%",
-              "label": "One quarter"
-            }
-          ],
-          "default": "50%"
         }
       ]
     }
@@ -326,6 +298,24 @@
       "default": "10px"
     },
     {
+      "type": "range",
+      "id": "columns_pc",
+      "label": "Columns per row (desktop)",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "label": "Columns per row (mobile)",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
       "type": "text",
       "id": "item_height_pc",
       "label": "Item height (desktop)",
@@ -351,25 +341,25 @@
       "type": "text",
       "id": "padding_top_pc",
       "label": "PC padding top",
-      "default": "0"
+      "default": "32px"
     },
     {
       "type": "text",
       "id": "padding_bottom_pc",
       "label": "PC padding bottom",
-      "default": "0"
+      "default": "32px"
     },
     {
       "type": "text",
       "id": "padding_top_mobile",
       "label": "Mobile padding top",
-      "default": "0"
+      "default": "24px"
     },
     {
       "type": "text",
       "id": "padding_bottom_mobile",
       "label": "Mobile padding bottom",
-      "default": "0"
+      "default": "24px"
     },
     {
       "type": "text",
@@ -400,14 +390,17 @@
     {
       "name": "Section Grid",
       "category": "Custom Sections",
+      "settings": {
+        "columns_pc": 2,
+        "columns_mobile": 1
+      },
       "blocks": [
         {
           "type": "grid_item",
           "settings": {
             "subheading": "shop by",
             "heading": "Women's Style",
-            "overlay_opacity": 20,
-            "block_width": "50%"
+            "overlay_opacity": 20
           }
         },
         {
@@ -415,8 +408,7 @@
           "settings": {
             "subheading": "shop by",
             "heading": "Men's Style",
-            "overlay_opacity": 10,
-            "block_width": "50%"
+            "overlay_opacity": 10
           }
         }
       ]

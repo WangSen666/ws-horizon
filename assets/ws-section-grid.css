@@ -1,7 +1,6 @@
 .ws-section-grid {
   display: block;
   width: 100%;
-  background: var(--ws-section-grid-bg, #f8f8f8);
 }
 
 .ws-section-grid__shell {
@@ -22,13 +21,13 @@
 }
 
 .ws-section-grid__item {
-  width: var(--ws-section-grid-item-width, 50%);
+  width: calc(100% / var(--ws-section-grid-columns-pc, 4));
   padding: calc(var(--ws-section-grid-gap, 10px) / 2);
 }
 
 @media (max-width: 749px) {
   .ws-section-grid__item {
-    width: 100%;
+    width: calc(100% / var(--ws-section-grid-columns-mobile, 2));
   }
 }
 
