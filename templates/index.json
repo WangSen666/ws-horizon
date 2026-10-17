@@ -348,19 +348,6 @@
     "ws_recommended_carousel_8KeKJD": {
       "type": "ws-recommended-carousel",
       "blocks": {
-        "ws_recommended_slide_Vzqydj": {
-          "type": "ws-recommended-slide",
-          "settings": {
-            "eyebrow": "Marine science advocate",
-            "title": "Recommended by CAMERON SHAW",
-            "subtitle": "Protecting oceans through science and education.",
-            "button_label": "Show Now",
-            "button_link": "",
-            "button_open_new_tab": false,
-            "media_type": "video",
-            "video": "shopify://files/videos/377fd314abaf4d52a7976f7d7bef660e.mp4"
-          }
-        },
         "ws_recommended_slide_hE3CRK": {
           "type": "ws-recommended-slide",
           "settings": {
