@@ -222,6 +222,10 @@
               },
               "block_order": []
             },
+            "beside_beside_fRPW4x": {
+              "type": "shopify://apps/beside/blocks/beside/01a16d34-6d0c-7047-b234-21f6f8f6ce79",
+              "settings": {}
+            },
             "text_aEtTtq": {
               "type": "text",
               "name": "Product description",
@@ -254,6 +258,7 @@
             "divider_VJhene",
             "variant_picker_R3rGDr",
             "buy_buttons_eYQEYi",
+            "beside_beside_fRPW4x",
             "text_aEtTtq"
           ]
         }
